@@ -259,5 +259,87 @@ Runnable r = () -> System.out.println(portNumber);
     값을 한번만 할당해야 한다는 제약이 생긴 것이다.
     인스턴스 변수는 스레드가 공유하는 힙에 존재하므로 제약이 없다.
     또한 일반적인 명령형 프로그래밍 패턴(병렬화를 방해하는 요소)에 제동을 걸 수 있다.
-     
+### 1.6 메서드 참조
+    메서드 참조를 이용하면 기존의 메서드 정의를 재활용해서 람다처럼 전달을 할 수 있다.
+    예를 들어 다음과 같은 코드를 가독성 좋게 바꿀수도 있다.
+```java
+inventory.sort((Apple a1, Apple a2) -> a1.getWeight().compareTo(a2.getWeight()));
+
+inventory.sort(comparing(Apple:getWeight));
+```   
+    메서드 참조는 특정 메서드만을 호출하는 람다의 축약형이라고 생각할 수 있다.
+    람다가 이 메서드를 호출하라고 지시하면 어떻게 호출하는지 설명을 보는것보다
+    메서드명을 직접 참조하는 것이 편리하다. 메서드 참조는 메서드명 앞에 (::) 를
+    붙이는 방식으로 메서드 참조를 활용할 수 있다.
+ ```java
+(Apple apple) -> apple.getWeight() : Apple::getWeight
+() -> Thread.currentThread().dumpStack() : Thread.currentThread()::dumpStack
+(str, i) -> str.substring(i) : String::substring
+(String s) -> System.out.println(s) : System.out::println
+(String s) -> this.isValidName(s) : this::isValidName
+```
+    메서드 참조는 3가지 유형으로 구분할수 있는데,
+    첫번째 정적 메서드 참조로 Integer의 parseInt 메서드 Integer::parseInt
+    로 표현할 수 있다,
+    두번째 다양한 형식의 인스턴스 메서드 참조로 String의 length 메서드는 String::length
+    로 표현할 수 있다.
+    마지막으로 기존 객체의 인스턴스 메서드 참조로 Apple 라는 객체를 할당받은 apple 지역변수
+    가 있고 Apple 에 getColor 이라는 메서드가 있다면 Apple::getColor 로 표현한다.
+    컴파일러는 람다 표현식의 형식을 검사하던 방식과 비슷한 과정으로 메서드 참조가 주어진
+    함수형 인터페이스와 호환하는지 확인한다. 즉, 메서드 참조는 콘텍스트의 형식과 일치해야한다,
+    메서드 뿐만 아니라 ClassName::new 처럼 생성자의 참조도 만들수 있다.
+    다음 코드는 Integer 를 포함하는 리스트의 각 요소를 Apple 생성자로 전달한다.
+ ```java
+List<Integer> weights = Arrays.asList(7, 3, 4, 10);
+List<Apple> apples = map(weights, Apple::new);
+public List<Apple> map(List<Integer> list, Function<Integer, Apple> f) {
+    List<Apple> result = new ArrayList<>();
+    for(Integer i : list) {
+        result.add(f.apply(i));
+    }
+    return result;
+}
+```
+    또한 인스턴스화하지 않고도 생성자에 접근할 수 있는 기능을 다음과 같이 응용할수도 있다.
+ ```java
+static Map<String, Function<Integer, Fruit>> map = new HashMap<>();
+static {
+    map.put("apple", Apple::new);
+    map.put("orange", Orange::new);
+}
+
+public static Fruit giveMeFruit(String fruit, Integer weight) {
+    return map.get(fruit.toLowerCase()).apply(weight);
+}
+```
+### 1.7 람다 표현식을 조합할 수 있는 유용한 메서드
+    Comparator, Function, Predicate 같은 함수형 인터페이스는 람다 표현식을
+    조합할수 있도록 유틸리티 메서드를 제공한다. 이는 간단한 람다 표현식을 조합해
+    복잡한 표현식을 만들수 있다.
+    만일 다음과 같은 코드의 역정렬을 하고 싶다면 reverse 라는 디폴트 메서드를
+    사용하면 된다. 또한 무게가 같을 경우 thenComparing 를 이용해 세컨드 정렬도 가능하다.
+```java
+Comparator<Apple> c = Comparator.comparing(Apple::getWeight);
+
+inventory.sort(comparing(Apple::getWeight).reversed())
+
+inventory.sort(comparing(Apple::getWeight)
+    .reversed()
+    .thenComparing(Apple::getCountry));
+```
+    Predicate 의 경우 or, and, negate(반전) 을 제공해준다,
+    Function 은 andThen, compose 두 가지 디폴트 메서드를 제공하는데
+    andThen 은 주어진 함수를 먼저 적용한 결과를 다른 함수의 입력으로 전달,
+    compose 는 인수로 주어진 함수를 먼저 실행후 그 결과를 외부함수의 인수로 제공한다.
+```java
+Function<Integer, Integer> f = x -> x + 1;
+Function<Integer, Integer> g = x -> x * 2;
+Function<Integer, Integer> h = f.andThen(g);
+int result = h.apply(1) <- 4
+
+Function<Integer, Integer> f = x -> x + 1;
+Function<Integer, Integer> g = x -> x * 2;
+Function<Integer, Integer> h = f.compose(g);
+int result = h.apply(1) <- 3
+```
     
