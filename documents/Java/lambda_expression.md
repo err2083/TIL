@@ -4,7 +4,7 @@
     익명 클래스로 다양한 동작을 구현할수 있지만 만족할 만큼 코드가 깔금하지 않다.
     이는 자바 8의 새로운 기능인 람다 표현식을 이용해서 익명 클래스처럼 이름이 없는
     함수 이면서 메서드를 인수로 깔금하게 전달할 수 있다.
-### 1.1 람다란 무엇인가?
+## 1.1 람다란 무엇인가?
     람다 표현식은 메서드로 전달할 수 있는 익명 함수를 단순화한 것이다,
     람다 표현식에는 이름은 없지만, 파라미터 리스트, 바디, 반환 혈식, 예외리스트를 가질수 있다.
     
@@ -46,7 +46,7 @@ Comparator<Apple> byWeight =
         (int a, int b) -> a * b
     두 객체 비교
         (Apple a1, Apple a2) -> a1.getWeight().compareTo(a2.getWeight())
-### 1.2 어디에, 어떻게 람다를 사용할까?
+## 1.2 어디에, 어떻게 람다를 사용할까?
     정확히 람다는 함수형 인터페이스라는 문맵에서 사용할 수 있다.
     그럼 함수형 인터페이스라는것은 어떤것일까?
     대표적으로 객체를 받아 불리언으로 반환해주는 Predicate<T>가 함수형 인터페이스 이다
@@ -83,7 +83,7 @@ process(() -> System.out.println("Hello World 3"));
     함수 인터페이스는 @Functionallnterface 어노테이션으로 표현할수 있는데,
     @Functionallnterface로 인터페이스를 선언했찌만 실제로 함수형 인터페이스가 아니라면
     컴퍼일러가 에러는 발생시킨다,
-### 1.3 람다 활용 : 실행 어라운드 패턴
+## 1.3 람다 활용 : 실행 어라운드 패턴
     자원 처리에 사용하는 순환 패턴은 자원을 열고, 처리한 후, 닫는 순서로 이루어져 있다.
     즉, 실제 자원을 처리하는 부분을 설정, 정리 과정이 둘러싸는 형태를 가지는데,
     이를 실행 어라운드 패턴 이라고 한다.
@@ -126,7 +126,7 @@ public String processFile(BufferedReaderProcessor p) throws IOException {
 String oneLine = processFile((BufferedReader br) -> br.readLine());
 String twoLines = processFile((BufferedReader br) -> br.readLine() + br.readLine());
 ```
-### 1.4 함수형 인터페이스 사용
+## 1.4 함수형 인터페이스 사용
     앞에서 살펴본것 처럼 함수형 인터페이스는 오직 하나의 추상 메서드를 지정한다,
     또한 함수형 인터페이스의 추상 메서드는 람다 표현식의 시그니처를 묘사하는데,
     함수형 인터페이스의 추상 메서드 시그니처를 함수 디스크립터 라고 한다.    
@@ -134,7 +134,7 @@ String twoLines = processFile((BufferedReader br) -> br.readLine() + br.readLine
     Comparable, Runnable, Callable 등 다양한 함수형 인터페이스를 제공한다.
     이는 우리가 따로 정의할 필요없이 바로 사용할수 있다는 장점이 있다.
     그럼 java.util.function 패키지의 Predicate, Consumer, Function 인터페이스를 살펴보자
-#### 1.4.1 Predicate
+### 1.4.1 Predicate
     Predicate<T> 인터페이스는 test 라는 추상 메서드를 정의하며 test는 
     제너릭 형식 T의 객체를 인수로 받아 불리언을 반환 한다.
 ```java
@@ -156,7 +156,7 @@ public <T> List<T> filter(List<T> list, Predicate<T> p) {
 Predicate<String> nonEmptyStringPredicate = (String s) -> !s.isEmpty();
 List<String> nonEmpty = filter(listOfStrings, nonEmptyStringPredicate);
 ```
-#### 1.4.2 Consumer
+### 1.4.2 Consumer
     Consumer<T> 인터페이스는 제너릭 형식 T 객체를 받아서 void를 반환하는 accept 라는
     추상화 메서드를 정의한다. T 형식의 객체를 인수로 받아서 어떤 동작을 수행하고 싶을때
     Consumer 인터페이스를 사용할수 있다.
@@ -174,7 +174,7 @@ public <T> void forEach(List<T> list, Consumer<T> c) {
 
 forEach(Arrays.asList(1,2,3,4,5), (Integer i) -> System.out.println(i));
 ```
-#### 1.4.3 Function
+### 1.4.3 Function
     Function 인터페이스는 제너릭 형식 T를 인수로 받아서 제너릭 형식 R 객체를 
     반환하는 apply를 정의 한다.
 ```java
@@ -194,7 +194,7 @@ public <T,R> List<R> map(List<T> list, Function<T,R> f) {
 List<Integer> l = map(Arrays.asList("lambdas", "in", "action"), 
     (String s) -> s.length());
 ```
-#### 1.4.4 기본형 특화
+### 1.4.4 기본형 특화
     지금까지 살펴본 제너릭 함수형 인터페이스는 파라미터로 참조형만 사용할수 있다.
     이는 자바에서 기본형을 참조형으로 변환하는 박싱, 참조형을 기본형을 반환하는 언박싱,
     박싱과 언박싱이 자동으로 이루어지는 오토박싱 기능을 이용해서 사용할수 있다.
@@ -219,7 +219,7 @@ evenNumbers.test(1000); <- 박싱 없음
 Predicate oddNumbers = (int i) -> i % 2 != 0;
 oddNumbers.test(1000); <- 박싱
 ```
-### 1.5 형식 검사, 형식 추론, 제약
+## 1.5 형식 검사, 형식 추론, 제약
     람다가 사용되는 콘텍스트(람다가 전달될 메서드 파라미터 또는 람다가 할당되는 변수)를 
     이용해서 람다의 형식을 추론할 수 있다. 이를 콘텍스트에서 기대되는 람다 표현식의
     혈식을 대상 형식이라고 부른다,
@@ -259,7 +259,7 @@ Runnable r = () -> System.out.println(portNumber);
     값을 한번만 할당해야 한다는 제약이 생긴 것이다.
     인스턴스 변수는 스레드가 공유하는 힙에 존재하므로 제약이 없다.
     또한 일반적인 명령형 프로그래밍 패턴(병렬화를 방해하는 요소)에 제동을 걸 수 있다.
-### 1.6 메서드 참조
+## 1.6 메서드 참조
     메서드 참조를 이용하면 기존의 메서드 정의를 재활용해서 람다처럼 전달을 할 수 있다.
     예를 들어 다음과 같은 코드를 가독성 좋게 바꿀수도 있다.
 ```java
@@ -312,7 +312,7 @@ public static Fruit giveMeFruit(String fruit, Integer weight) {
     return map.get(fruit.toLowerCase()).apply(weight);
 }
 ```
-### 1.7 람다 표현식을 조합할 수 있는 유용한 메서드
+## 1.7 람다 표현식을 조합할 수 있는 유용한 메서드
     Comparator, Function, Predicate 같은 함수형 인터페이스는 람다 표현식을
     조합할수 있도록 유틸리티 메서드를 제공한다. 이는 간단한 람다 표현식을 조합해
     복잡한 표현식을 만들수 있다.
