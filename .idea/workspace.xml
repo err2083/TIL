@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3d918382-9b6d-4b28-a144-81e474baa488" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/documents/javascript/Advanced_function.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/documents/javascript/function.md" beforeDir="false" afterPath="$PROJECT_DIR$/documents/javascript/function.md" afterDir="false" />
     </list>
@@ -18,11 +19,11 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/documents/javascript/function.md">
+        <entry file="file://$PROJECT_DIR$/documents/javascript/Advanced_function.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
               <first_editor relative-caret-position="308">
-                <caret line="274" column="57" selection-start-line="274" selection-start-column="57" selection-end-line="274" selection-end-column="57" />
+                <caret line="98" column="5" lean-forward="true" selection-start-line="98" selection-start-column="5" selection-end-line="98" selection-end-column="5" />
               </first_editor>
               <second_editor />
             </state>
@@ -49,6 +50,7 @@
         <option value="$PROJECT_DIR$/documents/Java/behavior_parameterization.md" />
         <option value="$PROJECT_DIR$/documents/Java/stream_concept.md" />
         <option value="$PROJECT_DIR$/documents/javascript/function.md" />
+        <option value="$PROJECT_DIR$/documents/javascript/Advanced_function.md" />
       </list>
     </option>
   </component>
@@ -63,7 +65,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -98,6 +99,7 @@
         </subPane>
       </pane>
       <pane id="Scope" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -165,18 +167,19 @@
       <workItem from="1583147379991" duration="5288000" />
       <workItem from="1584618345391" duration="4401000" />
       <workItem from="1584796457757" duration="3466000" />
-      <workItem from="1584840552433" duration="8262000" />
+      <workItem from="1584840552433" duration="11944000" />
+      <workItem from="1584867546065" duration="4782000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="44755000" />
+    <option name="totallyTimeSpent" value="53219000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.21879195" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.22214764" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="npm" order="2" side_tool="true" />
       <window_info id="Image Layers" order="3" />
@@ -278,24 +281,8 @@
     <entry file="file://$PROJECT_DIR$/documents/Java/behavior_parameterization.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="171">
+          <first_editor relative-caret-position="2090">
             <caret line="114" column="1" lean-forward="true" selection-start-line="114" selection-start-column="1" selection-end-line="114" selection-end-column="1" />
-            <folding>
-              <element signature="e#173#174#0" expanded="true" />
-              <element signature="e#220#221#0" expanded="true" />
-              <element signature="e#326#327#0" expanded="true" />
-              <element signature="e#378#379#0" expanded="true" />
-            </folding>
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/documents/Java/stream_concept.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="38">
-            <caret line="2" column="9" lean-forward="true" selection-end-line="2" selection-end-column="9" />
           </first_editor>
           <second_editor />
         </state>
@@ -304,8 +291,18 @@
     <entry file="file://$PROJECT_DIR$/documents/Java/lambda_expression.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="6346">
-            <caret line="334" column="37" selection-start-line="334" selection-start-column="37" selection-end-line="334" selection-end-column="37" />
+          <first_editor relative-caret-position="6023">
+            <caret line="317" column="20" lean-forward="true" selection-start-line="317" selection-start-column="20" selection-end-line="317" selection-end-column="20" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/documents/Java/stream_concept.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="76">
+            <caret line="4" column="12" lean-forward="true" selection-start-line="4" selection-start-column="12" selection-end-line="4" selection-end-column="12" />
           </first_editor>
           <second_editor />
         </state>
@@ -314,8 +311,18 @@
     <entry file="file://$PROJECT_DIR$/documents/javascript/function.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
+          <first_editor relative-caret-position="57">
+            <caret line="3" column="20" lean-forward="true" selection-start-line="3" selection-start-column="20" selection-end-line="3" selection-end-column="20" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/documents/javascript/Advanced_function.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
           <first_editor relative-caret-position="308">
-            <caret line="274" column="57" selection-start-line="274" selection-start-column="57" selection-end-line="274" selection-end-column="57" />
+            <caret line="98" column="5" lean-forward="true" selection-start-line="98" selection-start-column="5" selection-end-line="98" selection-end-column="5" />
           </first_editor>
           <second_editor />
         </state>
