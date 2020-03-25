@@ -71,7 +71,7 @@ try{
     console.info(night.light(3) === 'chirp-chirp-chirp'); //error 
 } catch (e) {
   console.info(e);
-}
+};
 ```
     여기서 문제는 재귀 함수가 여러곳에서 참조되는데, 자신이 호출될때
     호출한 객체의 메서드인지 상관없이 star.light 를 호출하는점에 있다.
@@ -87,7 +87,7 @@ var star = {
     light: function night(n){
         return n > 1 ? night(n-1) + '-chirp' : 'chirp'; 
     }
-}
+};
 ```
     이 방법 말도고 arguments 매개변수의 callee 프로퍼티라는 함수를 이용하는 방법도 있다.
     (callee 프로퍼티는 ES5 부터 엄격 모드에서 사용이 금지됨)
@@ -101,6 +101,72 @@ var star = {
 ```
     arguments 매개변수는 callee 라는 프로퍼티를 가지고 있는데,
     이는 현재 실행 중인 함수를 가리킨다.
+    
+### 1.3 함수 객체 가지고 놀기
+    자바스크립트 함수는 1종 객체로 프로퍼티를 추가할수 있다.
+    이 점을 이용해서 서로 다르지만 연관성을 지닌 함수들을 저장하고 싶을때
+    함수의 프로퍼티를 활용하면 컬렉션에 넣어서 일일이 비교하는 고지식한 방법이 아닌
+    세련된 방법으로 구현할수 있다.
+```javascript
+var store = {
+    nextId: 1,
+    cache: {},
+    add: function(fn){
+        if (!fn.id){
+            fn.id = store.nextId++;
+            return !!(store.cache[fn.id] = fn); // !!는 Boolean 객체로 만드는 방법
+        }
+    }
+};
+```
+    뿐만 아니라 함수의 프로퍼티를 활용해서 함수가 수행한 연산의 결과를 저장할 수도 있다.
+    즉, 같은 연산을 수행하는 시간을 절약할 수 있다.
+    이를 메모이제이션이라 하는데, 예시를 통해 알아보자
+    먼저 복잡하게 소수를 만드는 코드를 작성해보자
+```javascript
+function isPrime(value){
+    if(!isPrime.answers) isPrime.answers = {};
+    if(isPrime.answers[value]) return isPrime.answers[value];
+    var prime = value != 1;
+    for (var i = 2; i < value; i++){
+        if (value % i == 0) {
+            prime = false;
+            break;
+        }
+    }
+    return isPrime.answers[value] = prime;
+};
+```
+    이 코드를 보면 사용자가 함수를 사용했을때 넘긴 매개변수가 이미 캐시에 존재한다면
+    연산없이 반환하지만 없다면 비용이 드는 연산을 실행할 것이다.
+    이것이 메모이제이션으로 사용자는 이전에 연산된 값을 요청할때 성능 향상을 얻을수 있고,
+    사용자는 메모이제이션에 대한 별로 작업이 필요없이 동작한다는 것이다.
+    대신 메모리 사용량이 늘어난다는 점과, 함수 자체의 성능 테스트를 하기 힘들다는 단점도 있다.
+    유사한 다른 예를 보자
+```javascript
+function getElements(name){
+    if(!getElements.cache) getElements.cache = {};
+    return getElements.cache[name] = getElements.cache[name] 
+    || document.getElementsByTagName(name);
+};
+```
+    이는 태그 명으로 DOM 엘리먼트 집합을 검색하는것을 메모이제이션으로 활용한 방식이다.
+    이처럼 함수의 프로퍼티를 이용하면 상태와 캐시 정보를 외부에 노출하지 않는 단일 장소에 보관할수 있다.
+    
+    때때로 컬렉션을 멤버로 갖는 객체가 필요할 때가 있다. 컬렉션에 대한 메타 데이터를 같이
+    저장하는 경우가 이에 해당한다. 한가지 방법은 새로운 버전의 객체가 필요할 때마다
+    새로운 배열을 만들고 메타 데이터와 관련된 프로퍼티오아 메서드를 추가하는 것이다.
+```javascript
+var elems = {
+    length: 0,
+    add: function(elem){
+        Array.prototype.add.call(this,elem);
+    },
+    gather: function(id){
+        this.add(document.getElementById(id));
+    }
+};
+```
 
     
     
