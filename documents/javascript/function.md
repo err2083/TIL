@@ -270,7 +270,7 @@ function forEach(list, callback){
     }
 }
 
-var night = ['star','light','luna'];
+var night = ['star','light','lunar'];
 forEach(night, function(index){
    console.info(this == night[index]); //true, true. true
 });

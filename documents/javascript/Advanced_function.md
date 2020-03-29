@@ -64,7 +64,7 @@ var star = {
     }
 };
 
-var night = { luna: star.light };
+var night = { lunar: star.light };
 star = {};
 
 try{
@@ -231,10 +231,47 @@ function starlight(night){
     예를 들면
 ```javascript
 function star(sun){}
-function light(luna, sun){}
+function light(lunar, sun){}
 console.log(star.length) // 1
 console.log(light.length) // 2
 ```
     결과적으로 함수는 length 프로퍼티를 통해 이름을 지는 매개변수의 수를
     arguments.length 를 통해 호출 시에 전달된 인자의 수를 알 수 있다.
+    
+    함수의 인자를 기반으로 오버로드를 결정하는 방법은 여러가지가 있는데,
+    전달된 인자의 타입에 근거해서 다른 연산을 실행하거나, 특정 매개변수의 유무에 따라 전환,
+    전달된 인자의 수를 이용하는 방법이 있다.
+    인자의 수를 이용한 방법을 대표로 살펴보자
+    간단하게 switch 문을 이용해서 인자의 갯수가 0부터 n 까지 사용하는 방법이 있을것이다.
+    그러나 이 방법은 그다지 깔끔해 보이지않는다.
+    다른 방법으로 다음과 같이 추가할수 있는 방법이면 어떨까?
+```javascript
+var star = {}
+addMethod(star, 'whatever', function() {/* */});
+addMethod(star, 'whatever', function(a) {/* */});
+addMethod(star, 'whatever', function(a, b) {/* */});
+
+function addMethod(object, name, fn){
+    var old = object[name];
+    object[name] = function(){
+        if (fn.length == arguments.length){
+            return fn.apply(this, arguments);
+        }
+        else if (typeof old === 'function'){
+            return old.apply(this, arguments);
+        }
+    }
+};
+```
+    여기서 객체를 만든후 이름을 이용해서 메서드를 추가하는데, 같은 이름일 경우
+    오버로딩이 된다. 만일 같은 이름으로 메서드를 호출하면, 먼저 이전에 저장된 함수를
+    저장한다. 그 후에 현재 메서드랑 매개변수의 수를 비교해서 현재 함수를 호출할지를 판단한다.
+    만일 아니라면 이전에 저장된 함수를 호출한다.
+    즉, 각 레이어는 인자의 수가 일치하는지 확인하고 일치하지 않는 경우 이전에 만들어진
+    레이어로 호출을 전달한다. 하지만 이 방법은 함수를 호출하는데 오버헤드가 존재한다는 점을 생각해야 한다.
+ **TODO**
+ 클로저 정리하고 내용 추가하기
+    
+    
+    
     
