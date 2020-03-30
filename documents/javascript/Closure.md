@@ -79,4 +79,80 @@ later('lunar'); // star, night, lunar, sun
     없을때 까지 메모리에 남아있는다.
   
 ## 1.2 클로저 작업하기
+    이제부터 클로저를 페이지 내에서 이용하는 방법을 알아보자
+    
+### 1.2.1 Private 변수
+    클로저를 사용하는 일반적인 경우 중 하나는 private 변수처럼 몇몇 정보를 숨기고자 할때다.
+    즉, 변수의 유효 범위를 제한하려는 용도로 사용할수 있다. 다음 코드를 보자
+```javascript
+function Star(){
+    var lunar = 0;
+    this.getLunar = function(){
+        return lunar;
+    }
+    this.moon = function(){
+        lunar++;
+    }
+}
+var star = new Star();
+star.moon();
+console.log(star.getLunar()); //1
+console.log(star.lunar); //undefined
+```
+    코드를 보면 Star함수 안에 변수 lunar를 선언한다. 이 변수의 유효범위는 함수 내부이므로
+    private 변수가 된다. 생성자의 실행이 끝나면 변수를 포함하고 있는 유효 범위는 사라지지만
+    moon 메서드를 선언함으로써 만들어지는 클로저 덕분에 lunar 변수를 참조하고 수정할수 있다.
+    
+### 1.2.2 콜백과 타이머
+    클로저를 사용하는 다음 일반적인 상황은 콜백과 타이머이다.
+    두 경우 모두 지정된 함수들이 임의의 시간 뒤에 비동기적으로 호출이 되는데,
+    이때 함수 외부에 있는 데이터에 접근해야 하는 경우가 빈번하다.
+    다음은 클로저를 이용한 콜백 코드를 살펴보자
+```javascript
+$('#Button').click(function(){
+   var $el = $('#subject');
+   $el.html('star');
+   $.ajax({
+    url: "url",
+    success: function(rep){
+        $el.html(rep);
+    }
+   });
+});
+```
+    코드를 보면 ajax 인자 중에 익명 함수가 있는데 이 함수는 응답에 대한 콜백으로 사용된다.
+    이 콜백이 클로저를 통해 $el 변수에 접근할 수 있는것이다.
+    다음은 클로저를 이용한 타이머 코드이다,
+```javascript
+function animateIt(elementId){
+    var el = document.getElementById(elementId);
+    var tick = 0;
+    
+    var timer = setInterval(function(){
+        if (tick < 100){
+            el.style.left = el.style.top = tick + 'px';
+            tick++;
+        } else{
+            clearInterval(timer);
+            console.log(tick);
+            console.log(timer);
+        }
+    }, 10);
+};
+```
+    코드를 보면 애니메이션 프로세스를 정의하는 함수는
+    DOM 참조변수, 단계 카운터, 타이머 참조 변수 세개를 지니고 있다.
+    이 변수들은 애니메이션이 진행되는 동안 유지되어야 하면서, 전역으로 선언하면 안된다.
+    잠깐, 왜 전역으로 선언하면 안되는것일까?
+    만일 세 변수들이 전역으로 선언된 상태에서 두 개 이상의 엘리먼트들을 애니메이션 프로세스에
+    실행하게 될 경우, 동일한 변수를 서로 다른 애니메이션이 접근하여 충돌이 일어나게 된다.
+    즉, 변수를 전역 유효 범위에 둘 경우, 각 애니메이션 마다 3개의 변수가 필요하게 된다.
+    결국 클로저를 통해서 해당 변수에 접근하므로써 각 애니메이션은 변수를 저장할 수 있는
+    독립된 공간을 갖게 된다.
+    클로저를 사용하지 않는다면 이벤트 처리나, 애니메이션, Ajax 요청과 같은 일들을
+    한 번에 여러 개 처리하는 작업이 어려워진다.
+    또한 코드를 보면 클로저는 단순히 생성 시점에 유효 범위를 스냅샷한것이 아니라,
+    외부에는 노출하지 않고 유효 범위의 상태를 수정할수 있게 해주는 정보은닉 수단이다.
+    
+### 1.2.3 함수 콘텍스트 바인딩하기
     
