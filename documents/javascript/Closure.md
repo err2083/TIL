@@ -154,5 +154,176 @@ function animateIt(elementId){
     또한 코드를 보면 클로저는 단순히 생성 시점에 유효 범위를 스냅샷한것이 아니라,
     외부에는 노출하지 않고 유효 범위의 상태를 수정할수 있게 해주는 정보은닉 수단이다.
     
-### 1.2.3 함수 콘텍스트 바인딩하기
+### 1.2.3 함수 콘텍스트 바인딩하기 - 이해안됨 다시 보기
+    call() 과 apply() 메서드는 함수 콘텍스트 조작을 유용하게 사용될수 있지만,
+    객체 지향 코드에 잠재적으로 해로울 수 있다.
+    다음 코드를 살펴보자
+```javascript
+var button = {
+    clicked: false,
+    click: function(){
+        this.clicked = true;
+        console.log(button.clicked);
+    }
+}
+```
+
+### 1.2.4 부분 적용 함수
+    부분 적용 함수는 함수가 실행되기 전에 미리 인자를 설정하는 기술이다.
+    부분 적용 함수는 미리 정의된 인자를 가진 새로운 함수를 반환하고, 반환된 함수는
+    나중에 호출할 수 있다. 이것을 프록시 함수(한 함수가 다른 함수를 감싸고, 실행시 
+    감싸진 함수가 호출) 라고 한다.
+    함수의 몇몇 인자를 채우는 기법을 커링이라고 하는데
+    커링을 이해하기 위해 다음 코드를 보자
+```javascript
+var elements = "val1,val2.val3".split(/,\s*/);
+```
+    위 코드와 같이 split 메서드에 적절한 정규 표현식을 넘겨주면 간단히 문자열을 분리할수 있지만,
+    매번 기억하고 있다가 입력하는 것은 성가시다.
+    이 일을 처리해주는 메서드를 만들어보자
+```javascript
+Function.prototype.partial = function(){
+    var fn = this, args = Array.prototype.slice.call(arguments);
+    return function(){
+        var arg = 0;
+        for (var i = 0; i < args.length && arg < arguments.length; i++){
+            if (args[i] === undefined) {
+                args[i] = arguments[arg++];
+            }
+        }
+        return fn.apply(this, args);
+    }
+}
+
+String.prototype.csv = String.prototype.split.partial(/,\s*/);
+
+var results = ("star, light, night, lunar");
+
+console.log(results);
+```
+    코드를 보면 csv 메서드를 split 메서드의 정규표현식 인자를 미리 채운 메서드를
+    참조하고 있다. 여기서 partial 메서드는 사용자가 매개변수 목록에서 undefined
+    값을 할당하는 방식으로 나중에 넣을 인자를 지정할수 있다.
+    그럼 클로저를 이용하는 예를 살펴보자
+```javascript
+Function.prototype.curry = function(){
+    var fn = this, args = Array.prototype.slice.call(arguments);
+    return function(){
+        return fn.apply(this, args.concat(Array.prototype.slice.call(arguments)));
+    }
+}
+```
+    여기서 우리는 인자를 부분 적용할 함수와 함수에 적용할 인자들을 기억해 두고
+    이들을 새로 만들어질 함수에 전달하고자 한다. 
+    새로 만들어지는 함수는 미리 채워진 인자들과 전달된 인자들이 합쳐진 새로운
+    인자를 전달받게 된다. 하지만 이 예시는 앞의 partial 과 다르게 앞부분만 채워준다.
+        
+### 1.5 함수 동작 오버라이딩
+    자바스크립트가 함수에 대한 상당한 제어 권한을 제공하기 때문에 함수를
+    호출하는 사람이 눈치 채지 못하게 함수의 내부 동작을 변경할수 있다는 것이다.
+    구체적으로 두 가지 방법이 있는데,
+    첫번째로 존재하는 함수의 동작 방식을 수정하는것,
+    두번째로 존재하는 정적 함수를 바탕으로 새로운 함수를 만드는 것이다,
+    그전에 메모이제이션을 살펴보자
+    메모이제이션은 연산 결과를 기억하는 함수를 만들어 내는 것이다.
+    다음 코드를 살펴보자
+```javascript
+Function.prototype.memoized = function(key){
+    this._value = this._value || {};
+    return this._value[key] !== undefined 
+    ? this.value[key]
+    : this._value[key] = this.apply(this, arguments);
+}
+
+function isPrime(num){
+    var prime = num != 1;
+    for (var i = 2; i < num; i++){
+        if (num % i == 0) {
+            prime = false;
+            break;
+        }
+    }
+    return prime;
+}
+
+console.log(isPrime.memoized(5));
+console.log(isPrime._value[5]);
+```
+    이 코드는 클로저를 사용하지는 않는다.
+    존재하는 함수의 내부를 변경하는 데는 한계가 있지만 prototype을 통해서
+    함수 하나 혹은 모든 함수에 새로운 메서드를 추가하는 작업은 손쉽게 할 수 있다.
+    memoized 메서드는 흥미롭지만, 함수를 호출하는 사람이 메서드의 존재를
+    알고 있어야만 한다는 단점이 있다. 즉, 자동으로 메모이제이션을 지원하는
+    새로운 함수를 만드는 방법을 살펴보자
+```javascript
+Function.prototype.memoized = function(key){
+    this._value = this._value || {};
+    return this._value[key] !== undefined 
+    ? this.value[key]
+    : this._value[key] = this.apply(this, arguments);
+}
+
+Function.prototype.memoize = function(){
+    var fn = this;
+    return function() {
+        return fn.memoized.apply(fn, arguments);
+    }
+}
+
+var isPrime = (function(num){
+    var prime = num != 1;
+    for (var i = 2; i < num; i++){
+        if (num % i == 0) {
+            prime = false;
+            break;
+        }
+    }
+    return prime;
+}).memoize();
+
+console.log(isPrime(17));
+```
+    memoize 메서드는 원본 함수에 memoized() 를 적용한 다음, 다시 익명 함수로
+    감싼 함수를 반환한다. 이것은 함수를 호출하는 사람이 직접 memoized() 를
+    적용할 필요가 없게 해준다.
+    여기서 memoize() 메서드 내에서 함수의 콘텍스트를 변수에 복사함으로써
+    메모이제이션을 적용하려는 원본 함수를 기억하는 클로저를 생성하는것을 눈여겨 보자.
+    이것은 일반적으로 사용하는 방법으로, 각 함수는 자신의 콘텍스트를 가지기 때문에,
+    콘텍스트는 클로저의 일부분이 될 수 없다. 하지만 콘텍스트의 값은 그 값을
+    저장하는 변수를 이용해서 클로저의 일부분이 되게 할 수 있다.
+    원본 함수를 저장해 둠으로써, 우리가 작성한 memoized() 메서드를 호출하는
+    새로운 함수를 만들어서 반환할 수 있고, 메모이제이션이 적용된 함수를 직접 호출할수 있다.
+    isPrime() 함수를 정의할 때 이상한 방식을 사용하는데, isPrime() 함수가 항상 메모이제이션
+    을 제공하기를 원하기 떄문에 메모이제이션을 사용하지 않는 함수는 임시로 만들어야 한다.
+    익명으 소수를 판별하는 함수에 memoize() 메서드를 호출해 새로운 함수를 생성하고
+    변수에 할당한다. 이것은 원본 함수를 클로저 내에 완벽하게 숨기는 방법이지만,
+    코드를 확장할 수 없게 되느 단점도 있다.
     
+######다시 볼것
+    함수 래핑은 함수의 로직은 외부로 드러내지 않으면서, 새로운 기능을 추가하거나 확장하는 기법이다.
+    브라우저가 몇몇 기능을 제공하지 않는 상황에서 크로스 브라우저 코드를 구현할 때
+    이 방식을 사용한다. 다음 예시를 살펴보자
+```javascript
+function wrap(object, method, wrapper){
+    var fn = object[method];
+    
+    return object[method] = function(){
+        return wrapper.apply(this, [fn.bind(this)].concat(
+            Array.prototype.slice.call(arguments)));
+    };
+}
+
+if(Prototype.Browser.Opera){
+    wrap(Element.Methods, "readAttribute", function(original, elem, attr){
+        return attr == "title"
+        ? elem.title
+        : original(elem, attr);
+    })
+}
+```
+    코드를 보면 먼저 원본 메서드의 참조를 fn 에 저장한다. 이는 새로 생성할 익명 함수의
+    클로저를 통해서 나중에 접근할 수 있다.
+    그 다음 새로운 익명 함수로 해당 메서드를 덮어쓴다. 이 새함수는 전달받은
+    wrapper 함수를 실행하는데, 이때 수정된 인자 목록을 전달한다.
+    여기서 우리는 첫번쨰 인자가 오버라이딩할 원본 함수이길 원하므로, 원본 함수의
+    참조를 저장하는 배열을 생성한다. 그리고 원래 인자들을 배열에 추가한다.
