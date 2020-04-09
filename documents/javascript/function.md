@@ -208,7 +208,6 @@ console.info(starlight2.night() === starlight2); //true
     둘째, 새로 생성된 객체는 this 매개변수로 생성자 함수에 전달되고, 생성자 함수의 함수 콘텍스트가 된다.
     마지막으로, 명시적인 반환 값이 없다면 새로 생성된 객체가 생성자의 값으로 반환된다.
     다음 코드를 보자
-    var starlight1 = new star();
 ```javascript
 function Star() {
     this.night = function() { return this; };
