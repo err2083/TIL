@@ -168,6 +168,22 @@ Object.defineProperty(myObject, "a", {
     이 속성은 for ... in 루프처럼 객체 프로퍼티를 열겨하는 구문에서
     해당 프로퍼티의 표출 여부를 나타낸다.
     enumerable: false 로 지정된 프로퍼티는 접근할수 있지만 루프 구문에서 감춰진다.
+```javascript
+var myObject = {};
+Object.defineProperty(myObject, 'a', {
+    enumerable: true, value: 2
+});
+
+Object.defineProperty(myObject, 'b', {
+    enumerable: false, value: 3
+});
+
+console.info(myObject.propertyIsEnumerable('a')); //true
+console.info(myObject.propertyIsEnumerable('b')); //false
+
+console.info(Object.keys(myObject)); // a
+console.info(Object.getOwnPropertyNames(myObject)); // a, b
+```
     
 ### 1.3.4 불변성
     프로퍼티/객체를 의도적으로 변경되지 않게 할 경우가 있다.
@@ -196,3 +212,141 @@ console.info(myObject.b); // undefined
     writable: false 처리하는 Object.freeze() 도 있다.
     물론 객체가 참조하는 다른 객체의 내용을 봉쇄하지는 못한다.
     
+### 1.3.5 [[Get]] [[Put]]
+    만일 객체의 프로퍼티에 접근한다 할때 프로퍼티를 실제로 해당 객체에서 찾는것이 아니다.
+    명세에 따르면 실제로 이 코드는 객체에 대해 [[Get]] 연산을 한다.
+    기본으로 [[Get]] 연산은 주어진 이름의 프로퍼티를 먼저 찾아보고 없으면 undefined 를 반환한다.
+    식별자 명으로 변수를 참조할때는 렉시컬 스코프 내에 없는 변수를 참조하면
+    객체 프로퍼티처럼 undefined가 아니라 ReferenceError 이 발생한다.
+    
+    다음은 프로퍼티 값을 할당하는 [[Put]] 알아보자
+    [[Put]]을 실행하면 주어진 객체에 프로퍼티가 존재하는지 등 여러가지 요소에 따라
+    작동 방식이 달라진다. 먼저 프로퍼티가 접근 서술자인지 확인후 맞으면 세터를 호출한다,
+    그 후 프로퍼티가 writable:false 인 데이터 서술자이면 실패, 엄격모드에선 에러가 발생한다.
+    이외에는 프로퍼티에 값을 세팅한다.
+    //TODO 프로토타입 공부후 다시 정리
+    
+### 1.3.6 게터와 세터
+    이전에 알아본 [[Put]], [[Get]] 기본 연산은 이미 존재하거나 전혀 새로운 프로퍼티에
+    값을 세팅하거나 기존 프로퍼티로부터 값을 조회하는 역할을 각각 담당한다.
+    게터와 세터는 실제로 값을 가져오고, 세팅하는 감춰진 함수를 호출하는 프로퍼티이다.
+    프로퍼티가 게터, 세터를 정의한것을 접근 서술자라고 하는데, 이는 writable 속성은
+    무시되며 프로퍼티의 get, set  속성이 중요하다.
+```javascript
+var myObject = {
+    get a(){
+        return 2;
+    }
+};
+
+Object.defineProperty(myObject, "b", {
+    get: function(){ return this.a * 2},
+    enumerable: true
+});
+
+console.info(myObject.a); // 2
+console.info(myObject.b); // 4
+myObject.a = 3;
+console.info(myObject.a); // 2
+```
+    위처럼 리터럴로 선언하든, 아래처럼 defineProperty 로 정의를 내리던 똑같이
+    프로퍼티에 접근하면 자동으로 게터 함수를 은밀하게 호출하여 게터 함수가 반환한 값이
+    결과 값이 된다. 만일 a 의 게터가 정의되어있다면 할당문으로 할당하더라도 조용히 무시된다.
+    이때 필요한게 세터이다.
+```javascript
+var myObject = {
+    get a(){
+        return this._a_;
+    },
+    set a(val){
+        this._a_ = val * 2;
+    }
+}
+
+myObject.a = 2
+console.info(myObject.a) // 4
+```
+
+### 1.3.7 존재 확인
+    다음 코드를 보자
+```javascript
+var myObject = {
+    a: undefined
+};
+
+console.info(myObject.a); //undefined
+console.info(myObject.b); //undefined
+
+console.info('a' in myObject); //true
+console.info('b' in myObject); //false
+
+console.info(myObject.hasOwnProperty('a')); //true
+console.info(myObject.hasOwnProperty('b')); //false
+
+var none = Object.create(null);
+console.info(none.hasOwnProperty('a')); // error
+Object.prototype.hasOwnProperty.call(none, 'a'); //false
+```
+    만일 객체의 프로퍼티가 undefined 일때 실제로 프로퍼티가 객체에 존재하는지
+    분별할 상황이 필요할때가 있다. 물론 a 의 경우 연산이 더 적을 것이다.
+    먼저 in 연산자의 경우 해당 객체 뿐만 아니라 프로토타입 연쇄를 따라가서 상위
+    까지 존재를 확인한다. 반면에 hasOwnProperty 는 해당 객체만 확인한다.
+    이때 hasOwnProperty는 Object.prototype 를 위임받는데, Obecjt.create 로
+    생성한 객체는 hasOwnProperty 를 사용할수 없으므로 call 메서드로 빌려와서
+    수행할수 있다.
+    추가로 in 연산자는 프로퍼티명이 있는지 확인하므로 4 in [2,4,6] 과 같이 쓰면 안된다.
+    
+## 1.4 순회 - (ES6)
+    for ... in 루프는 열거 가능한 객체 프로퍼티를 차례대로 순회한다.
+    그럼 프로퍼티 값를 순회할려면 어떻게 할까?
+    ES5 부터 forEach(), every(), some() 등 배열 관련 순회 헬퍼가 도입됬다.
+    이 함수들은 콜백 함수를 인자로 받으며 원소별로 반환 값을 처리하는 로직만 다르다.
+    for ... in 루프는 열거 가능한 프로퍼티만 순회하고 그 값을 얻으려면
+    일일이 인덱스로 프로퍼티에 접근해야하는 간접적인 추출이다.
+    이를 위해서 ES6 부터는 직접 값을 순회하는 for ... of 구문이 추가됬다.
+    이는 @@iterator 라는 기본 내부 함수를 기반으로 값을 반환한다.
+```javascript
+var myArray = [1,2,3];
+var it = myArray[Symbol.iterator]();
+
+console.info(it.next()); // {value: 1, done: false}
+console.info(it.next()); // {value: 2, done: false}
+console.info(it.next()); // {value: 3, done: false}
+console.info(it.next()); // {value: undefined, done: true}
+```
+    코드를 보면 배열에 내장된 @@iterator 덕분에 {value, done} 형태로 
+    순회 할수 있다. 이를 응용하면 일반 객체도 값 순회를 할수 있다.
+```javascript
+var myObject = {
+    a: 2,
+    b: 3
+};
+
+Object.defineProperty(myObject, Symbol.iterator, {
+    enumerable: false,
+    writable: false,
+    configurable: true,
+    value: function(){
+        var o = this;
+        var idx = 0;
+        var ks = Object.keys(o);
+        return {
+            next: function(){
+                return {
+                    value: o[ks[idx++]],
+                    done: (idx > ks.length)  
+                };
+            }
+        }
+    },
+});
+
+var it = myObject[Symbol.iterator]();
+console.info(it.next()); // {value: 2, done: false}
+console.info(it.next()); // {value: 3, done: false}
+console.info(it.next()); // {value: undefined, done: true}
+
+for(var v of myObject) {
+    console.info(v); //2, 3
+};
+```
