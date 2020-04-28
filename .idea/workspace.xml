@@ -3,7 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="3d918382-9b6d-4b28-a144-81e474baa488" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documents/javascript/Closure.md" beforeDir="false" afterPath="$PROJECT_DIR$/documents/javascript/Closure.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/documents/javascript/Object.md" beforeDir="false" afterPath="$PROJECT_DIR$/documents/javascript/Object.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documents/javascript/function.md" beforeDir="false" afterPath="$PROJECT_DIR$/documents/javascript/function.md" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -17,12 +19,24 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/documents/javascript/Object.md">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/documents/javascript/function.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="336">
-                <caret line="338" column="13" lean-forward="true" selection-start-line="338" selection-start-column="13" selection-end-line="338" selection-end-column="13" />
+              <first_editor relative-caret-position="1444">
+                <caret line="76" column="19" selection-start-line="76" selection-start-column="19" selection-end-line="76" selection-end-column="19" />
+              </first_editor>
+              <second_editor />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/documents/javascript/Closure.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SPLIT">
+              <first_editor relative-caret-position="559">
+                <caret line="217" column="4" selection-start-line="217" selection-start-column="4" selection-end-line="217" selection-end-column="4" />
               </first_editor>
               <second_editor />
             </state>
@@ -34,6 +48,7 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find>luna</find>
+      <find>배열</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -55,9 +70,9 @@
         <option value="$PROJECT_DIR$/documents/Java/Advanced_stream.md" />
         <option value="$PROJECT_DIR$/documents/javascript/Advanced_function.md" />
         <option value="$PROJECT_DIR$/documents/Java/behavior_parameterization.md" />
-        <option value="$PROJECT_DIR$/documents/javascript/Closure.md" />
-        <option value="$PROJECT_DIR$/documents/javascript/function.md" />
         <option value="$PROJECT_DIR$/documents/javascript/Object.md" />
+        <option value="$PROJECT_DIR$/documents/javascript/function.md" />
+        <option value="$PROJECT_DIR$/documents/javascript/Closure.md" />
       </list>
     </option>
   </component>
@@ -73,7 +88,6 @@
     </navigator>
     <panes>
       <pane id="PackagesPane" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -107,12 +121,14 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -189,18 +205,22 @@
       <workItem from="1586345155264" duration="1284000" />
       <workItem from="1586441767947" duration="1375000" />
       <workItem from="1586517669640" duration="4879000" />
-      <workItem from="1586607073963" duration="5110000" />
+      <workItem from="1586607073963" duration="5181000" />
+      <workItem from="1586680967363" duration="2437000" />
+      <workItem from="1586943929570" duration="103000" />
+      <workItem from="1587985225074" duration="621000" />
+      <workItem from="1588076612291" duration="2368000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="98653000" />
+    <option name="totallyTimeSpent" value="104253000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.27046978" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2865772" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="npm" order="2" side_tool="true" />
       <window_info id="Image Layers" order="3" />
@@ -319,31 +339,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/documents/javascript/Closure.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="294">
-            <caret line="316" column="59" selection-start-line="316" selection-start-column="59" selection-end-line="316" selection-end-column="59" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/documents/javascript/Advanced_function.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="3154">
             <caret line="166" column="25" selection-start-line="166" selection-start-column="25" selection-end-line="166" selection-end-column="25" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/documents/javascript/function.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="38">
-            <caret line="2" column="9" selection-end-line="2" selection-end-column="9" />
           </first_editor>
           <second_editor />
         </state>
@@ -372,8 +372,28 @@
     <entry file="file://$PROJECT_DIR$/documents/javascript/Object.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="336">
-            <caret line="338" column="13" lean-forward="true" selection-start-line="338" selection-start-column="13" selection-end-line="338" selection-end-column="13" />
+          <first_editor relative-caret-position="337">
+            <caret line="259" column="24" lean-forward="true" selection-start-line="259" selection-start-column="24" selection-end-line="259" selection-end-column="24" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/documents/javascript/function.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="1444">
+            <caret line="76" column="19" selection-start-line="76" selection-start-column="19" selection-end-line="76" selection-end-column="19" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/documents/javascript/Closure.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="559">
+            <caret line="217" column="4" selection-start-line="217" selection-start-column="4" selection-end-line="217" selection-end-column="4" />
           </first_editor>
           <second_editor />
         </state>

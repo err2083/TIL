@@ -154,11 +154,12 @@ function animateIt(elementId){
     또한 코드를 보면 클로저는 단순히 생성 시점에 유효 범위를 스냅샷한것이 아니라,
     외부에는 노출하지 않고 유효 범위의 상태를 수정할수 있게 해주는 정보은닉 수단이다.
     
-### 1.2.3 함수 콘텍스트 바인딩하기 - 이해안됨 다시 보기
+### 1.2.3 함수 콘텍스트 바인딩하기
     call() 과 apply() 메서드는 함수 콘텍스트 조작을 유용하게 사용될수 있지만,
     객체 지향 코드에 잠재적으로 해로울 수 있다.
     다음 코드를 살펴보자
 ```javascript
+// <button id="test">Click</button>
 var button = {
     clicked: false,
     click: function(){
@@ -166,8 +167,55 @@ var button = {
         console.log(button.clicked);
     }
 }
-```
 
+var el = document.getElementById("test");
+el.addEventListener("click", button.click, false);
+```
+    코드를 보면 test 라는 아이디를 가진 버튼 태그가 존재하고 이 버튼이 눌렸을때
+    해당 버튼이 눌렸는지 안눌렸는지 확인하고 싶은 로직이다. 하지만 다음 코드는
+    예상대로 동작하지 않는다. 왜냐하면 브라우저의 이벤트 핸들링 시스템은
+    이벤트의 대상 엘리먼트를 이벤트 핸들러 함수의 콘텍스트로 지정하기 때문에
+    this 는 button 객체가 아닌 <button> 가 된다. 결국 button.clicked 는 그대로다.
+    이벤트 핸들러를 호출할때 대상 엘리먼트를 호출되는 함수의 콘텍스트로 설정하는것은
+    지극히 당연한 것이다. 이 문제는 클로저를 통해서 우회할수가 있다
+    다음 코드를 보자
+```javascript
+function bind(context, name) {
+    return function(){
+        return context[name].apply(context, arguments);
+    };   
+}
+
+var el = document.getElementById("test");
+el.addEventListener("click", bind(button, "click"), false);
+```
+    bind 메서드는 익명함수를 반환하는데, 이 익명함수는 주어진 콘텍스트의 메소드를
+    apply 를 통해 호출한다. 따라서 어떤 객체라도 전달된 함수의 콘텍스트가 되게 할 수 있다.
+    이는 bind 함수에 전달된 매개변수 즉, 호출될 메서드의 이름과 함께 익명함수의
+    클로저를 통해서 기억된다.
+    다음 코드를 보면서 이해를 높여보자
+```javascript
+Function.prototype.bind = function(){
+    var fn = this, args = Array.prototype.slice.call(arguments),
+        object = args.shift();
+    
+    return function(){
+        return fn.apply(object, args.concat(Array.prototype.slice(arguments)));  
+    };
+}
+
+var myObject = {}
+function myFunction(){
+    return this == myObject;
+}
+
+console.log(myFunction()); // false
+var aFunction = myFunction().bind(myObject);
+console.log(aFunction()); // true
+```
+    bind 함수를 사용하는 목적은 apply(), call() 의 대체가 아닌
+    지연된 콜백 실행을 위해 익명 함수와 클로저를 통해 컨텍스트를 제어하는 점을 기억하자
+    
 ### 1.2.4 부분 적용 함수
     부분 적용 함수는 함수가 실행되기 전에 미리 인자를 설정하는 기술이다.
     부분 적용 함수는 미리 정의된 인자를 가진 새로운 함수를 반환하고, 반환된 함수는

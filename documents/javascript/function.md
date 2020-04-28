@@ -85,7 +85,7 @@ function useless(callback){
 if (window) {
     var x = 213;
 }
-alert(x);
+alert(x); // 213
 ```
     다음과 같은 코드가 있을때 블록 구분자의 영향을 받는 대부분의 언어는
     에러가 나지만, 자바스크립트는 213이 표시가 된다,

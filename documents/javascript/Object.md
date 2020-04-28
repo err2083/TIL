@@ -62,6 +62,7 @@ console.info(strPrimitive.charAt(5)); // t
     좋은 생각은 아니다.
     또한 주의할점은 배열에 프로퍼티를 추가할때 프로퍼티명이 숫자와 유사하면
     숫자 인덱스로 잘못 해석되므로 조심하자
+    //TODO 내용 추가 예정
 ```javascript
 var myArray = ['star', 'light', 'lunar'];
 myArray['3'] = 'sun';
@@ -165,7 +166,7 @@ Object.defineProperty(myObject, "a", {
     추가로 configurable 이 false 이면 delete 로 지우려고 해도 실패하게 된다.
     
 #### 1.3.3.3 열거 가능성
-    이 속성은 for ... in 루프처럼 객체 프로퍼티를 열겨하는 구문에서
+    이 속성은 for ... in 루프처럼 객체 프로퍼티를 열거하는 구문에서
     해당 프로퍼티의 표출 여부를 나타낸다.
     enumerable: false 로 지정된 프로퍼티는 접근할수 있지만 루프 구문에서 감춰진다.
 ```javascript
