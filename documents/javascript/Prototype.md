@@ -93,4 +93,97 @@ console.log(sun.constructor.prototype.lunar);
     그럼 인스턴스 메서드가 존재할때 같은 이름의 프로토타입 메서드를 정의하면 어떻게 될까?
     인스턴스에서 프로퍼티에 참조할때 직접적으로 가지고 있지 않을때면 프로토타입 프로퍼티를
     참조하므로 인스턴스 메서드가 우선하는것을 잊지 말자.
-     
+    
+    자바스크립트는 언제 프로토타입을 사용하는지 알아두어야 하지만, 어떤 함수가
+    객체 인스턴스를 생성했는지 아는것도 유용하다.
+    객체의 생성자는 constructor 프로퍼티를 통헤 얻을 수 있다.
+````javascript
+function Star() {}
+var star = new Star();
+console.log(typeof star == "object"); // true
+console.log(star instanceof Star); // true
+console.log(star.constructor == Star); // true
+````
+    코드를 보면 객체 인스턴스 타입을 확인하고 있다.
+    첫번째 방법인 typeof 는 인스턴스 객체에 대해 항상 'object' 를 반환하므로
+    많은 정보를 얻지 못한다.
+    보다 흥미로운 두번째는 어떤 생성자 함수를 사용하여 인스턴스를 만들었는지
+    확인할수 있다. 하지만 
+    세번째 방법은 인스턴스가 어디로부터 왔는지 역으로 참조하기 때문에
+    원본 생성자 함수를 직접 접근하지 않더라도 인스턴스를 만들수 있다.
+```javascript
+function Star() {}
+var star = new Star();
+var star2 = new star.constructor();
+```
+    앞에서 본 instanceof 연산자를 살펴보자
+    이는 객체 상속과 관련하여 또 다른 유용한 기능을 제공하는데. 먼저
+    상속과 프로토타입 체인을 이해하여야 한다.
+```javascript
+function Star() {};
+Star.prototype.tear = function() {};
+
+function Light() {};
+Light.prototype = { tear: Star.prototype.tear};
+
+var light = new Light();
+console.log(light instanceof Light); // true
+console.log(light instanceof Star); // false
+console.log(light instanceof Object); // true
+```
+    함수의 프로토타입도 객체이기 때문에, 상속 효과를 내도록 Star 프로토타입의
+    메서드인 tear 프로퍼티를 Light 프로토타입에 복사함으로써 상속을 구현한다.
+    그러나 light instanceof Star 는 실패하는 것이 이는 상속이 아닌 단지
+    복사하는 점을 알수 있다.
+    여기서 필요한것은 프로토타입 체인으로, 이를 이용해서 상속을 구현할수 있다.
+    프로토타입 체인을 생성하는 제일 좋은 방법은 상위 객체의 인스턴스를 하위 객체의
+    프로토타입으로 사용하는 것이다.
+    SubClass.prototype = new SuperClass();
+    subClass 인스턴스의 프로토타입은 SuperClass 의 인스턴스 이고,
+    SuperClass 의 인스턴스는 SuperClass 의 프로토타입을 갖고 있으며
+    SuperClass 의 프로토타입은 SuperClass 의 모든 프로퍼티가 있다.
+    이런식으로 하위 클래스의 프로토타입은 상위 클래스의 인스턴스를 가리킨다.
+```javascript
+function Star() {}
+Star.prototype.tear = function() {};
+function Light() {}
+Light.prototype = new Star();
+var light = new Light();
+
+console.log(light instanceof Light); // true
+console.log(light instanceof Star); // true
+console.log(light instanceof Object); // true
+console.log(typeof light.tear == 'function'); // true 
+```
+    코드를 보면 instanceof 연산을 수행하면 함수가 자신의 프로토타입 체인
+    내에 있는 어떤 객체의 기능을 상속하고 있는지를 확인 할수 있다.
+    참고로 Star.prototype = Light.prototype 같은 방법은 지양하는 형태이다
+    이는 Star 프로토타입에 일어나는 모든 변경사항이 Light 프로토타입에도 적용
+    되므로 예상치못한 부작용을 초래할 수 있다.
+    
+    이를 응용하면 네이티브 객체(Array, String ..) 의 기능을 확장 할 수도 있다.
+```javascript
+if(!Array.prototype.forEach){
+    Array.prototype.forEach = function(callback, context) {
+        for (var i = 0; i < this.length; i++) {
+            callback.call(context || null, this[i], i, this);
+        }
+    }
+}
+```
+    모든 내장 객체에도 프로토타입이 있기 때문이 위 코드와 같이 확장을 할수있다.
+    그러나 내장 객체 프로토타입은 언제나 하나이기 때문에 충동일 날 가능성이
+    있으니 위험하다는 것을 인지하여야 한다.
+    또 모든 DOM 엘리먼트가 HTMLElement 생성자를 상속한다는 것.
+    우리는 HTMLElement 프로토타입에 접근할수 있고, HTML 노드도
+    선택에 따라 확장 할 수있다.
+```javascript
+HTMLElement.prototype.remove = function(){
+    if (this.parentNode) {
+        this.parentNode.removeChild(this);
+    }
+}
+
+document.getElementById("a").remove();
+```
+    
