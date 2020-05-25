@@ -186,4 +186,154 @@ HTMLElement.prototype.remove = function(){
 
 document.getElementById("a").remove();
 ```
+    이를 이용할때 주의할점은 IE8 이하는 HTMLElement 프로토타입을 지원하지
+    않는다는 점이다. 또힌 HTMLElement 는 생성자를 호출하는 기능은 작동하지 않는다.
+    var el = new HTMLElement();
     
+## 1.2 실수하기 쉬운 것들
+    프로토타입, 인스턴스 생성, 상송과 관련해서 여러가지 실수하기 쉬운 예를 살펴보자
+### 1.2.1 객체 확장하기
+    프로토타입을 다루면서 가장 최악의 실수는 Object.prototype 의 확장이다.
+    이는 모든 객체가 추가된 프로퍼티를 받으면서, 순회할때 새로 추가한 프로퍼티가 같이
+    순회되어 문제가 될수 있고, 예상치못한 행동을 발생시킬수 있다.
+    코드를 보면서 이해해보자, 다음 코드는 객체의 모든 프로퍼티 이름을 반환하는 함수를
+    구현한 것이다.
+```javascript
+Object.prototype.keys = function(){
+    var keys = [];
+    for (var p in this) keys.push(p);
+    return keys;
+}
+
+var obj = {a: 1, b:2, c: 3};
+
+console.log(obj.keys()); // a, b, c, keys
+```
+    결과를 보면 obj 에 요소 3개를 추가했지만 출력을 보면 keys 까지 출력된것을 볼수 있다.
+    Object 에 추가한 메서드는 모든 객체에 영향을 주고, 모든 객체는 추가한 메서드를
+    신경쓸수 바께없다. 이에 대한 대안으로
+    자바스크립트는 프로퍼티가 실제로 객체 인스턴스에 정의된것인지, 프로토타입에서
+    온것인지를 판단해주는 hasOwnProperty() 메서드를 제공한다.
+```javascript
+Object.prototype.keys = function(){
+    var keys = [];
+    for (var p in this){
+        if (this.hasOwnProperty(p)) keys.push(p);   
+    }
+    return keys;
+}
+
+var obj = {a: 1, b:2, c: 3};
+
+console.log(obj.keys()); // a, b, c
+```
+    하지만 이런 해결책이 있다고 해서 남용해도 된다는 뜻은 아니다.
+    hasOwnProperty() 를 사용하는 경우는 일반적이지 않다.
+    이는 일반적이지 않는 상황에서 보호하기 위해 이같은 해결책을 사용할 뿐이다.
+
+### 1.2.2 Number 객체 확장하기
+    Object를 제외한 대부분의 네이티브 객체 프로토타입을 확장하는 방식은 안전하다.
+    하지만 본질적으로 Number 객체는 문제가 될수 있다.
+    자바스크립트 엔진이 숫자와 숫자 객체의 프로퍼티를 파싱하는 방법때문에 
+    혼란을 초래할 수도 있다.
+```javascript
+Number.prototype.add = function(num){
+    return this + num;
+};
+var n = 5;
+console.log(n.add(3)); // 8
+console.log((n).add(3)); // 8
+console.log(5.add(3)); // error
+```
+    위 코드를
+    1. 변수를 이용하여 메서드를 테스트
+    2. 표현식 형태를 테스트
+    3. 숫자 리터럴을 직접 사용하여 테스트
+    하지만 문법 파서가 리터럴의 경우 처리하지 못해 에러가 발생한다.
+    Number 프로토타입을 건드리는것은 선택하항이지만 이런 상황을 제어할줄 알아야한다.
+
+### 1.2.3 네이티브 객체의 하위 클래스 만들기
+    네이티브 객체의 하위 클래스를 만들려고 하면, 상황이 조금 불명확해진다.
+    예를 들면 Array의 하위 클래스를 만들면, 우리가 기대한것처럼 아무 문제없이
+    동작하는 것처럼 보일지도 모른다
+```javascript
+function MyArray() {};
+MyArray.prototype = new Array();
+var mine = new MyArray();
+mine.push(1,2,3);
+console.log(mine.length); // 3
+console.log(mine instanceof Array); // true
+```
+    이 코드를 익스플로러에서 불러오지 않는다면 문제가 없어보인다.
+    length 프로퍼티는 약간 특별하고 Array 객체의 숫자 인덱스와 밀접한
+    관계가 있다. IE 에서는 length 프로퍼티와 관련한 것들을 원활하게 사용하지
+    못하기 때문에, IE는 우리의 의도에 잘 따라주지 않는다(IE 9 이상은 제대로 동작)
+    이런 상황에서는 네이티브 객체 전체를 상속하기 보다는 네이티브 객체의 기능과는
+    별개인 기능을 구현하는 것이 더 나은 전략이다.
+```javascript
+function MyArray() {};
+MyArray.prototype.length = 0;
+
+(function(){
+    var methods = ['push', 'pop', 'shift', 'unshift', 'slice', 'splice', 'join'];
+    
+    for (var i = 0; i < methods.length; i++) (function(name){
+        MyArray.prototype[name] = function(){
+            return Array.prototype[name].apply(this, arguments);
+        }
+    })(methods[i]);
+})();
+
+var mine = new MyArray();
+mine.push(1,2,3);
+console.log(mine.length); // 3
+console.log(mine instanceof Array); // false
+```
+    여기서는 Array 를 상속하는 대신 즉시실행함수를 사용하여 선택한 메서드만
+    apply 를 통해 MyArray 클래스에 추가하는 형태로 사용했다.
+    
+### 1.2.4 인스턴스 생성 이슈
+    일반 함수와 생성자 이는 다르게 동작하는것을 이미 알고 있을것이다.
+    누군가 잘못된 방식으로 함수를 사용한 경우, 발생할 수 있는 문제점들을
+    살펴보자
+```javascript
+function User(first, last) {
+    this.name = first + last;
+}
+var user = User('star','light');
+console.log(user); // undefined
+console.log(user.name); // error
+```
+    코드를 보면 첫번쨰 콘솔에서 undefined 가 출력된것을 보면
+    인스턴스가 생성조차 안된것을 볼 수 있다.
+    코드를 자세히 보지않으면 User 에 new 가 빼먹은 것인지 확실히 알기 어렵다.
+    특히 초보자는 new 연산자를 생략한 채로 호출하기 쉽고, 예상치 못한 결과가
+    나올수도 있다. 위 코드의 경우 User 를 일반 함수로 호출했으니 this 가 전역
+    이 되고 현재 유효 범위를 오염시킨다. (name 전역변수가 덮어쓴다)
+    그럼 어떻게 생성자로 함수를 호출했는지 확인할까?
+```javascript
+function Test(){
+    return this instanceof arguments.callee;
+}
+console.log(Test()); // false
+console.log(new Test()); // object
+```
+    이 코드를 통해 몆가지 중요한 개념을 떠올려보자
+    첫째, arguments.callee 를 통해 현재 실행하고 있는 함수에 대한 참조를
+    얻을 수 있다.(권장하지 않는 방법)
+    둘째, '일반적인' 함수의 콘텍스트는 전역 유효 범위 이다.
+    셋째, 생성된 객체에 대해 instanceof 연산자를 사용하여 그 객체의 생성자를
+    테스트 할 수 있다.
+    이를 통해 new 를 명시적으로 호출하게 코드를 다시 짜보자
+```javascript
+function User(first, last) {
+    if (!(this instanceof arguments.callee)) {
+        return new User(first, last);
+    }
+    this.name = first + last;
+}
+```
+    하지만 이는 과연 옳은가에 대해 의문을 가져야한다.
+    앞서 말했듯이 arguments.callee 는 strict 모드에서 금지되고,
+    사용자의 의도를 100% 확신할 수도 없고, 모든 클래스에 이런 형태로
+    코드를 넣어줄수도 없는 노릇이다. 이런 부분을 항상 고민 해보자
