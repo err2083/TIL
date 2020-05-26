@@ -337,3 +337,155 @@ function User(first, last) {
     앞서 말했듯이 arguments.callee 는 strict 모드에서 금지되고,
     사용자의 의도를 100% 확신할 수도 없고, 모든 클래스에 이런 형태로
     코드를 넣어줄수도 없는 노릇이다. 이런 부분을 항상 고민 해보자
+    
+## 1.3 보다 클래스다운 코드 작성하기
+    전통적인 객체 지향 방식에 익숙한 개발자들에게 자연스럽게 다가갈수 있는
+    코드를 한번 보자
+```javascript
+var Person = Object.subClass({
+    init: function(isDancing){
+        this.dancing= isDancing;
+    },
+    dance: function(){
+        return this.dancing;
+    }
+});
+
+var Star = Person.subClass({
+    init: function(){
+        this._super(false);
+    },
+    dance: function(){
+        return this._super();
+    },
+    swingSword: function(){
+        return true;
+    }
+});
+
+var person = new Person(true);
+console.log(person.dance());
+
+var star = new Star();
+console.log(star.swingSword());
+console.log(star.dance());
+
+console.log(person instanceof Person);
+console.log(star instanceof Star && star instanceof Person);
+
+(function(){
+    var initializing = false,
+        superPattern = /xyz/.text(function(){ xyz;}) ? /\b_super\b/ : /.*/;
+    
+    Object.subClass = function(properties){
+        var _super = this.prototype;
+        
+        initializing = true;
+        var proto = new this();
+        initializing = false;
+        
+        for (var name in properties){
+            proto[name] = typeof properties[name] == 'function' 
+            && typeof _super[name] == 'function'
+            && superPattern.test(properties[name]) ?
+            (function(name, fn) {
+                return function() {
+                  var tmp = this._super;
+                  this._super = _super[name];
+                  var ret = fn.apply(this, arguments);
+                  this._super = tmp;
+                  return ret;
+                };
+            })(name, properties[name]) : properties[name];
+        }
+        function Class(){
+            if (!initializing && this.init)
+                this.init.apply(this, arguments);
+        }
+        Class.prototype = proto;
+        Class.constructor = Class;
+        Class.subClass = arguments.callee;
+        
+        return Class;
+    };
+})();
+```
+    위 코드를 볼때 중요한 점을 정리해보자
+    첫째 상위 클래스의 생성자 함수에 있는 subClass() 메서드를 호출하여
+    새로운 클라새를 만든다. 코드는 Object 로 부터 Person, Person 으로 부터 Star
+    둘째 우리는 생성자를 단순한 방법으로 만들기 원한다. 각 클래스에 init 메서드를 선언하면 된다.
+    셋째 우리가 만든 모든 클래스는 Object 를 상속한다. 즉, 어떤 클래스의 최상위 계층은
+    Object 가 있어야 한다.
+    마지막으로 이러한 문법들이 해결해야 할 문제는 적절한 콘텍스트를 설정하여
+    재정의된 메서드에 접근을 가능케 하는 것이다. 이를 위해 this._super() 를
+    사용하여 Person에 있는 원본 init() 와 dance() 메서드를 호출하는지 볼수 있다.
+    위 코드는 상당한 난이도가 있으므로 각 부분별로 살펴보자
+    요점을 먼저 보자면 가장 중요한 두가지는 초기화 와 상위 클래스에 정의된
+    메서드를 하위 클래스에서 재정의할 떄의 처리 방법이다.
+    
+### 1.3.1 함수 직렬화 검사
+    함수 직렬화는 어떤 함수를 받아서 단순히 그 함수 내용을 텍스트로 돌려 받는것이다.
+    나중에, 우리가 처리해야 할 참조가 특정 함수 내부에 있는지를 검사하려면 이 방법이 필요하다.
+    일반적으로 문자열을 요구하는 콘텍스트에서 함수의 toStirng() 메서드가 호출됨
+    으로써 해당 함수는 직렬화 된다.
+    코드를 보면 /xyz/.test(function(){xyz;}) 이 표현식은 문자열 xyz를 가진
+    함수를 생성하고 그 함수를 문자열 xyz 를 테스트하는 정규표현식 test 메서드에 전달한다.
+    test() 메서드는 문자열을 요구하므로 toString() 메서드를 호출하고 정상적으로
+    직렬화 되면 결과는 true 가 된다.
+    결국 superPattern = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/'
+    은 어떤 함수가 _super 문자열을 포함하고 있는지 검사하는데 사용하는 변수를 설정한다.
+    만일 직렬화가 허용되지 않으면 모든 문자열과 매치하는 패턴으로 대체한다.
+    
+### 1.3.2 하위 클래스의 인스턴스 만들기
+    Object에 subClass() 메서드를 추가하는데, 이 subClass() 메서드는 하나의
+    매개변수를 받는다. 이 매개변수는 하위 클래스에 추가될 프로퍼티들을 담고있는 해시이다.
+    프로토타입 상속을 따라 하기 위해, 상위 클래스의 인스턴스를 생성하고 이를 
+    프로토타입에 할당하는 기법을 사용한다. 개념적으로 살펴보면 다음과 같은 모양새이다
+```javascript
+function Person(){}
+function Star(){}
+Star.prototype = new Person();
+console.log((new Star()) instanceof Person);
+```
+    이 코드조각에서 Person 객체를 만들고 생성자를 실행하는데 드는 비용은
+    부담하지 않으면서도 instanceof 의 혜택을 누리게 하는것이 목표이다.
+    이 문제에 대응하기 위해 initializing 변수를 두고 클래스의 인스턴스를
+    만들 떄 이 변수 값을 true 로 설정한다. 이 변수는 오직 프로토타입으로
+    사용할 인스턴스를 만들 때만 사용된다. 그리하여 실제로 인스턴스를 생성하여
+    사용할 때가 되면 initializing 값은 false 이고 그렇다면 하위 클래스를
+    정의하는 작업은 끝났다고 확신할 수 있기에, init() 메서드를 실행하거나
+    건너뛸수도 있다. 여기서 중요한 점은 init() 메서드는 비용이 높은 모든 시동 코드
+    에서 실행될 수 있다는 점이다. 그래서 단순히 prototype 으로만 작동하는
+    인스턴스를 만들때, 불필요하고 비싼 시동코드는 피해야 한다.
+    여기서 시동 코드란 서버에 연결하거나 DOM 엘리먼트를 생성하는 높은 작업들이다.
+
+### 1.3.3 상위 메서드 보존하기
+    이제 하위 클래스에 설정될 프로퍼티를 프로토타입 인스턴스에 복사하는 것이다.
+    상속을 지원하는 대부분 언어는 메서드를 재정의할 떄 원본 메서드에 접근할 수단을 제공한다.
+    앞서 살펴본 코드에서는 상위 클래스의 원본 메서드를 참조하는 _super 라는 임시
+    메서드를 만들었고, 이 메서드는 하위 클래스의 메서드에서만 접근할 수 있다.
+    하위 클래스를 확장하려면 단순히 subClass() 메서드로 전달받은 프로퍼티와
+    상위 클래스의 프로퍼티를 합치기만 하면 된다.
+    우선 var proto = new this() 를 통해 프로토타입으로 사용할 상위 클래스의
+    인스턴스를 만든다. 이제 proto 객체에 합치면 된다.
+    함수를 재정의하면서 원본 함수를 _super를 사용하여 호출한다고 하면,
+    _super 프로퍼티가 상위 클래스의 함수를 참조하도록 포장 작업이 필요하다.
+    하지만 그전에,하위 클래스의 어떤 함수를 포장해야 하는지 그 조건을 알아야한다.
+    첫째 하위클래스의 프로퍼티가 함수인가?
+    둘째 상위클래스의 프로퍼티도 함수인가?
+    마지막으로 하위 클래스의 함수가 _super() 에 대한 참조를 포함하는가?
+    이다. 이 세 항목이 모두 참이라면 프로퍼티 값을 단순 복사하는 대신, 무엇인가
+    작업을 해주어야 한다. 만약 포장해야 한다면 즉시싱행함수의 결과를
+    하위 프로퍼티에 할당함으로써 해당 함수를 포장한다.
+    이 즉시실행함수는 하위 클래스의 함수를 실행하도록 포장한 새로운 함수를 반환한다.
+    상위 클래스 함수는 _super 프로퍼티를 통해 참조할수 있다.
+    기존의 this._super는 잠시 저장해었다가 하위 클래스의 함수를 호출하고 나면
+    원래의 this,_super 값을 되돌린다. 이는 혹시라도 _super 라는 이름을 가진
+    변수가 이미 존재하는 경우 도움이 된다.
+    그 다음 _super 에 새 메서드를 할당하는데 이 메서드는 단지 상위 클래스의
+    프로토타입에 있는 메서드를 참조할 뿐이다. 이 메서드는 상위 클래스 프로토타입에
+    속해 있지만, 우리가 만든 객체의 프로퍼티로 이 메서드를 설정하면 고맙게도 자동으로
+    해당 객체를 함수의 콘텍스트로 설정한다. 따라서 유효 범위를 다시 설정하기 위해
+    추가적인 변경할 필요가 없다
+    마지막으로 하위 클래스 메서드를 호출하고, _super 를 원래 상태로 돌린후 함수를
+    빠져나온다.
