@@ -182,3 +182,144 @@ console.log(a1.constructor === Object); // true
     가능하면 직접 사용하지 않는 게 상책이다.
     
 ## 1.3 프로토타입 상속
+    앞서 a가 Foo.prototype에서 상속하여 myName() 함수에 접근했던 걸 상기하면 프로토타입 상속이라는
+    체계가 어떻게 작동하는지 알 수 있다. 그러나 예전부터 보통 상속이라 하면 일단 두 클래스 간의
+    고간계를 생각하지 클래스와 인스턴스 간의 관계를 떠올리진 않는다.
+    다음은 위임 링크를 생성하는 전형적인 '프로토타입 스타일' 코드다
+```javascript
+function Foo(name) {
+    this.name = name;
+}
+
+Foo.prototype.myName = function() {
+    return this.name;
+};
+
+function Bar(name, label) {
+    Foo.call(this, name);
+    this.label = label;
+}
+//Bar.prototype 를 Foo.prototype 에 연결한다.
+Bar.prototype = Object.create( Foo.prototype );
+// 이제 Bar.prototype.constructor 은 사라졌으니 이 프로퍼티에 의존하는 코드가 있다면 수정해야한다.
+Bar.prototype.myLabel = function() {
+    return this.label;
+}
+
+var a = new Bar('a', 'obj a');
+console.log(a.myName()); // a
+console.log(a.myLabel()); // obj a
+console.log(a.constructor === Foo); // true
+```
+    Bar.prototype = Object.create( Foo.prototype ) 부분이 중요하다.
+    Object.create() 를 실행하면 새로운 객체를 만들고 내부 [[Prototype]]을 지정한 객체에 링크한다.
+    Bar() {} 함수를 선언하면 Bar는 여타 함수처럼 기본으로 .prototype 링크를 자신의 객체에 가지고있다.
+    그리고 연결된 객체와 헤어지고 Foo.prototype과 연결된 새로운 객체를 생성한다.
+    그냥 다름 코드처럼 하면 되지 않을까? 라는 생각이 들수도 있다.
+```javascript
+// (1)
+Bar.prototype = Foo.prototype;
+
+// (2)
+Bar.prototype = new Foo():
+```
+    (1)처럼 할당한다고, Bar.prototype이 링크된 새로운 객체가 생성되진 않는다. 단지 Bar.prototype을
+    Foo.prototype을 가리키는 부가적인 레퍼런스로 만들어 사실상 Foo에 링크된 Foo.prototype 객체와
+    직접 연결한다. 그래서 Bar.prototype.myLabel = ... 같은 할당문을 실행하면
+    별도의 객체가 아닌 공유된 Foo.prototype 객체 자체를 변경하게 되어 Foo.prototype와 연결된
+    모든 객체에 영향을 끼친다.
+    
+    (2)의 경우 Foo.prototype과 링크된 새 객체가 생성되지만, 그 과정에서 Foo()를 생성자 호출한다.
+    Foo 함수 본문이 내부적인 부수 효과(로깅, 상태변경 등)로 가득하다면 연결고리가 성립되는 시점에
+    이런 부수 효과까지 함께 일어나게 된다.
+    그러므로 Foo()의 부수 효과가 일어나지 않도록 Object.create() 를 잘 사용해서
+    새로운 객체를 적절히 링크하여 생성하야 한다.
+    다음은 Bar.prototype 과 Foo.prototype을 연결하는 테크닉을 ES6 기준으로 나눈 코드다.
+```javascript
+// ES6 이전
+// 기존 기본 'Bar.prototype' 를 던져 버린다. 그 후 던져버린 객체를 가비지 콜렉트
+Bar.prototype = Object.create( Foo.prototype );
+
+// ES6 이후
+// 기존 'Bar.prototype' 를 수정한다.
+Object.setPrototypeOf( Bar.prototype, Foo.prototype );
+```
+
+### 1.3.1 클래스 관계 조사
+    a 같은 객체가 어떤 객체로 위임할지는 어떻게 알 수 있을까? 클래스 지향 언어에서는 인스턴스의
+    상소 계통을 살펴보는것을 리플렉션 이라고 한다.
+    우선 클래스라는 혼란을 수용하는 방법이 있다.
+```javascript
+function Foo() {};
+
+Foo.prototype.blah = function() {};
+
+var a = new Foo();
+console.log(a instanceof Foo); // true
+```
+    instanceof 연산자는 a의 [[Prototype]] 연쇄를 순회하면서 Foo.prototype가 가리키는
+    객체가 있는지 조사한다. 이 말은 대상 함수에 대해 주어진 객체의 계통만 살펴볼수 있다는 뜻이다.
+    만일 객체 a,b 가 있으면 instanceof 만으로 두 객체가 서로 [[Prototype]] 연쇄를 통해
+    연결되어 있는지 전혀 알 수 없다. 만일 클래스와 instanceof 의 의미를 오해하면
+    다음과 같은 코드를 통해 억지로 추론하는 우를 범하게 된다.
+```javascript
+function isRelatedTo(o1, o2){
+    function F(){}
+    F.prototype = o2;
+    return o1 instanceof F;
+}
+
+var a = {};
+var b = Object.create(a);
+
+console.log(isRelatedTo(b,a)); // true;
+``` 
+    임시로 생성한 함수 F의 .prototype이 멋대로 o2 객체를 참조하게 하고 o1이 F의 인스턴스인지
+    물어보고 있다. 이는 instanceof 를 사용해 클래스 본래 의미를 자바스크립트에 강제로 적용하려는
+    부자연스러움이 있다.
+    [[Prototype]] 리플렉션을 확인할 수 있는 훌륭한 대안이 있다.
+```javascript
+Foo.prototype.isPrototypeOf(a) // true
+``` 
+    isPrototypeOf() 는 a의 전체 [[Prototype]] 연쇄에 Foo.prototype이 있는가 라는 질문에 대답한다.
+    isPrototypeOf 를 쓰면 간접적으로 참조할 함수의 .prototype 프로퍼티를 거치는 등 잡다한 과정이
+    사라진다. 다음과 같이 관계를 확인하고 싶은 객체 2개를 적어주기만 하면 된다.
+```javascript
+b.isPrototypeOf(c);
+```
+    따라서 함수는 전혀 필요하지 않다. 이는 마치 isRelatedTo() 유틸리티를 isPrototypeOf()라는 이름
+    으로 자바스크립트 언어에 내장시킨 것이다.
+    ES5 부터 지원하는 표준 메서드를 사용하면 [[Prototype]]을 곧바로 조회 할 수도 있다.
+```javascript
+console.log(Object.getPrototypeOf(a) === Foo.prototype); // true
+```
+    거의 모든 브라우저에서 내부의 [[Prototype]]을 들여다볼 수 있는 비표준 접근 방법을
+    과거부터 지원해왔다.
+```javascript
+console.log(a.__proto__ === Foo.prototype); // true
+```
+    .__proto__ 프로퍼티(ES5까지는 비표준이다) 로 객체 내부의 [[Prototype]]을 볼 수 있다.
+    프로토타입 연쇄를 직접 확인하고 싶을때는 체이닝도 가능하다.
+    이미 앞에서 살펴본 .constructor 처럼 .__proto__ 역시 객체에 실제하는 프로퍼티가 아닌
+    내장 객체 Object.prototype에 존재한다. 그리고 .__proto__는 프로퍼티처럼 보이지만
+    게터/세터에 가깝다. 만일 구현한다면 .__proto__는 대략 다음과 같은 모습일 것이다.
+```javascript
+Object.defineProperty(Object.prototype, "__proto__", {
+   get: function() {
+        return Object.getPrototypeOf(this);   
+   },
+   set: function(o) {
+     // ES6부터는 setPrototypeOf()를 사용한다.
+     Object.setPrototypeOf(this, o);
+     return o;
+   }
+});
+```
+    따라서 a.__proto__로 접근하는 것은 마치 a.__proto__()를 호출하는 것과 같다.
+    .__proto__ 프로퍼티는 ES6 Object.setPrototypeOf()를 사용하여 세팅할 수도 있지만
+    이미 존재하는 객체의 [[Prototype]]은 되도록 변경하지 않는 편이 좋다.
+    일반 프로그래밍 관점에서 그리 바람직하지 않을 뿐더러 대개 난해하고 관리하기 어려운
+    코드로 변질되는 경우가 많다.
+    
+## 1.4 객체 링크
+    
