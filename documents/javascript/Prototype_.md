@@ -322,4 +322,76 @@ Object.defineProperty(Object.prototype, "__proto__", {
     코드로 변질되는 경우가 많다.
     
 ## 1.4 객체 링크
+    [[Prototype]] 체계는 다름 아닌 다른 객체를 참조하는 어떤 객체에 존재하는 내부 링크다.
+    이 연결고리는 객체의 프로퍼티/메서드를 참조하려고 하는데, 해당 프로퍼티.메서드가 객체에 존재하지
+    않을 때 활용된다. 엔진은 [[Prototype]]에 연결된 객체를 하나씩 따라가면서 프로퍼티/메서드를 
+    찾아보고 발견될 때까지 같은 과정을 되풀이한다. 이렇게 객체 사이에 혈성된 일련의 링크를
+    프로토타입 연쇄 라고 한다.
+
+### 1.4.1 링크 생성
+    [[Prototype]] 체계의 핵심은 무엇일까? 먼저 Object.create() 살펴보자
+    이는 새로운 객체를 생성하고 주어잔 객체와 연결한다. (만일 주어진 객체가 null 일 경우
+    프로토타입 연쇄가 존재하지 않기에 일차원적인 데이터 저장소로 사용하며 이를 딕셔너리라고 한다.)
+    이 덕분에 클래스 뭉치 없이도 깔끔하게 처리할 수 있다.
     
+    Object.create() 는 ES5부터 추가되어서 이전 버전을 지원하려면 폴리필이 필요하다.
+```javascript
+if(!Object.create) {
+    Object.create = function(o) {
+        function F() {}
+        F.prototype = o;
+        return new F();
+    };
+}
+```
+    이 폴리필은 우선 임시 함수 F를 이용하여 F.prototype 프로퍼티가 링크하려는 객체를 가리키도록
+    오버라이드 한다. 그럼 다음 new F()로 원하는 연결이 수립된 새 객체를 반환한다.
+    하지만 Object.create 의 추가적인 기능까지는 폴리필 할수 없다. 다음의 Object.create 의 추가기능이다.
+```javascript
+var anotherObject = {
+    a: 2
+};
+
+var myObject = Object.create( anotherObject, {
+    b: {
+        enumerable: false,
+        writable: true,
+        configurable: false,
+        value: 3     
+    },
+    c: {
+        enumerable: true,
+        writable: false,
+        configurable: false,
+        value: 4
+    }
+});
+
+console.log(myObject.hasOwnProperty('a')); // false
+console.log(myObject.hasOwnProperty('b')); // true
+console.log(myObject.hasOwnProperty('c')); // true
+
+console.log(myObject.a); // 2
+console.log(myObject.b); // 3
+console.log(myObject.c); // 4
+```
+
+## 1.4.2 링크는 대비책?
+    지금까지 설명한 객체 간 연결 시스템을 프로퍼티/메서드를 찾지 못할 경우를 위한 대비책으로 오해하기 쉽다.
+    이는 코드 분석이나 유지 보수에 힘겨운 소프트웨어가 될수 있다.
+    이는 다음과 같이 활용하여 유지 보수까지 고려할수 있다.
+```javascript
+var anotherObject = {
+    cool: function() {
+        console.log('cool');
+    }
+};
+
+var myObject = Object.create(anotherObject);
+myObject.doCool = function(){
+    this.cool(); // 내부 위임이다.
+};
+myObject.doCool(); // cool
+```
+    이는 내부적으로 [[Prototype]]을 anotherObject.cool() 에 위임한 위임 디자인 패턴의 구현 방식이다.
+            
