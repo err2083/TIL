@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3d918382-9b6d-4b28-a144-81e474baa488" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/documents/javascript/Behavior_delegation.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documents/javascript/Behavior_delegation.md" beforeDir="false" afterPath="$PROJECT_DIR$/documents/javascript/Behavior_delegation.md" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -21,8 +21,8 @@
         <entry file="file://$PROJECT_DIR$/documents/javascript/Behavior_delegation.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="616">
-                <caret line="269" column="16" selection-start-line="269" selection-start-column="16" selection-end-line="269" selection-end-column="16" />
+              <first_editor relative-caret-position="325">
+                <caret line="423" column="4" selection-start-line="423" selection-start-column="4" selection-end-line="423" selection-end-column="4" />
               </first_editor>
               <second_editor />
             </state>
@@ -204,18 +204,19 @@
       <workItem from="1591183904003" duration="5683000" />
       <workItem from="1591270484757" duration="2469000" />
       <workItem from="1591356721888" duration="29000" />
-      <workItem from="1591614582962" duration="6763000" />
+      <workItem from="1591614582962" duration="7395000" />
+      <workItem from="1591787394539" duration="3586000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="150122000" />
+    <option name="totallyTimeSpent" value="154340000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.1704698" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.17248322" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="npm" order="2" side_tool="true" />
       <window_info id="Image Layers" order="3" />
@@ -233,7 +234,7 @@
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="8" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
-      <window_info anchor="bottom" id="Terminal" order="10" weight="0.41359773" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="10" visible="true" weight="0.41276595" />
       <window_info anchor="bottom" id="Event Log" order="11" side_tool="true" />
       <window_info anchor="bottom" id="Messages" order="12" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -415,8 +416,8 @@
     <entry file="file://$PROJECT_DIR$/documents/javascript/Behavior_delegation.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="616">
-            <caret line="269" column="16" selection-start-line="269" selection-start-column="16" selection-end-line="269" selection-end-column="16" />
+          <first_editor relative-caret-position="325">
+            <caret line="423" column="4" selection-start-line="423" selection-start-column="4" selection-end-line="423" selection-end-column="4" />
           </first_editor>
           <second_editor />
         </state>

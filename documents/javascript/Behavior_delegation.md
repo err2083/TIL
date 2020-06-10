@@ -268,3 +268,157 @@ $(document).ready(function() {
     없다. 대신 각자 수행하는 임무를 더욱 구체적으로 드러낼 다른 이름을 부여한다.
     
 ## 1.3 더 간단한 디자인
+    작동 위임 패턴은 실제로 더 간단한 코드 아키텍처를 가능케 한다.
+    OLOO로 어떻게 디자인을 전반적으로 단순화시킬 수 있는지 코드를 보자
+    로그인 페이지의 입력 폼을 처리하는 객체, 서버와 직접 인증을 수행하는 객체가 있다고 하자.
+    전형적인 클래스 디자인 패턴에 의하면 Controller 클래스에 기본적인 기능을 담아두고 이를
+    상속받은 LoginController 와 AuthController 두 자식 클래스가 구체적인 작동 로직을 구현
+    하는 방식이 될것이다.
+```javascript
+function Controller() {
+    this.error = [];
+}
+Controller.prototype.showDialog = function(title, msg) {
+    
+};
+Controller.prototype.success = function(msg) {
+    this.showDialog("Success", msg);
+};
+Controller.prototype.failure = function(err) {
+    this.errors.push( err );
+    this.showDialog("Error",err);
+};
+// 자식 클래스
+function LoginController() {
+    Controller.call(this);
+}
+LoginController.prototype = Object.create(Controller.prototype);
+LoginController.prototype.getUser = function() {
+    return document.getElementById('login_username').value;
+};
+LoginController.prototype.getPassword = function() {
+    return document.getElementById('login_password').value;  
+};
+LoginController.prototype.validateEntry = function(user, pw) {
+      user = user || this.getUser();
+      pw = pw || this.getPassword();
+      if (!(user && pw)) {
+          return this.failure('ID와 비밀번호를 입력하여 주십시오!');
+      }
+      else if (pw.length < 5) {
+          return this.failure('비밀번호는 5자 이상이어야 합니다!');
+      }
+      return true;
+};
+LoginController.prototype.failure = function(err) {
+    // 'super' 를 호출한다.
+    Controller.prototype.failure.call(this, '로그인 실패: ' + err);
+};
+function AuthController(login) {
+    Controller.call(this);
+    this.login = login;
+}
+AuthController.prototype = Object.create(Controller.prototype);
+AuthController.prototype.server = function(url, data) {
+    return $.ajax({
+        url: url,
+        data: data
+    });
+};
+AuthController.prototype.checkAuth = function() {
+    var user = this.login.getUser();
+    var pw = this.login.getPassword();
+    
+    if (this.login.validateEntry(user, pw)) {
+        this.server('/check-auth', {
+            user: user,
+            pw: pw
+        })
+        .then(this.success.bind(this))
+        .fail(this.failure.bind(this));
+    }
+};
+AuthController.prototype.success = function() {
+    // 'super'를 호출한다
+    Controller.prototype.success.call(this, '인증 성공!');  
+};
+AuthController.prototype.failure = function() {
+    Controller.prototype.failure.call(this, '인증 실패: ' + err);
+};
+var auth = new AuthController(new LoginController());
+auth.checkAuth();
+```
+    success(), failure(), showDialog()는 모든 컨트롤러가 공유하는 기본 작동이 구현된
+    메서드 들이다. 자식 클래스는 이들을 오버라이드 하여 기본 작동을 증강한다.
+    다음은 OLOO 스타일의 작동위임 스타일 코드이다
+```javascript
+var LoginController = {
+    errors: [],
+    getUser: function() {
+        return document.getElementById('login_username').value;
+    },
+    getPassword: function() {
+        return document.getElementById('login_password').value;
+    },
+    validateEntry: function(user, pw) {
+        user = user || this.getUser();
+        pw = pw || this.getPassword();
+        if (!(user && pw)) {
+            return this.failure('ID와 비밀번호를 입력하여 주십시오!');
+        }
+        else if (pw.length < 5) {
+            return this.failure('비밀번호는 5자 이상이어야 합니다!');
+        }
+        return true;
+    },
+    showDialog: function(title, msg) {
+        
+    },
+    failure: function(err) {
+        this.errors.push(err);
+        this.showDialog('에러', '로그인 실패: ' + err);
+    }
+};
+var AuthController = Object.create(LoginController);
+AuthController.errors = [];
+AuthController.checkAuth = function() {
+    var user = this.getUser();
+    var pw = this.getPassword();
+        
+    if (this.validateEntry(user, pw)) {
+        this.server('/check-auth', {
+            user: user,
+            pw: pw
+        })
+        .then(this.success.bind(this))
+        .fail(this.failure.bind(this));
+    }
+};
+AuthController.server = function(url, data) {
+    return $.ajax({
+        url: url,
+        data: data
+    });
+};
+AuthController.accepted = function() {
+    this.showDialog('성공', '인증 성공!');
+};
+AuthController.rejected = function(err) {
+    this.showDialog('인증 실패: ' + err);
+};
+AuthController.checkAuth();
+```
+    OLOO 위임 연쇄에 하나 또는 그 이상의 객체를 추가로 생성하야 할경우 다음과 같이
+    간단히 코딩할수 있다. 이때 클래스 인스턴스 따위는 필요없다
+```javascript
+var controller1 = Object.create(AuthController);
+var controller2 = Object.create(AuthController);
+```
+    작동 위임 패턴에서 AuthConttroller 와 LoginConterller는 수평적으로 서로를 엿보는
+    객체일 뿐이며 억지로 부모 자식 관계를 맺을 필요가 없다.
+    이 둘 사이에 작동을 공유하기 위해 징검다리 역할을 대신할 기본 Controller가 더는 필요없어졌다.
+    또 클래스 자체가 없으므로 클래스 인스턴스 과정도 생략된다.
+    마지막으로 메서드를 똑같은 이름으로 포함하지 않아도 되니 다형성 문제도 해결된다.
+    
+## 1.4 더 멋진 구문
+        
