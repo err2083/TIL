@@ -421,4 +421,88 @@ var controller2 = Object.create(AuthController);
     마지막으로 메서드를 똑같은 이름으로 포함하지 않아도 되니 다형성 문제도 해결된다.
     
 ## 1.4 더 멋진 구문
+    ES6 class가 시선을 잡아끄는 매력 중 하나는 클래스 메서드를 짧은 구문으로 쓸수 있다는 점이다
+```javascript
+class Foo {
+    methodName() {};
+}
+```
+    ES6부터는 객체 리터럴에 단축 메서드 선언이 가능하며 다음과 같이 OLOO 스타일 객체를 선언할 수 있다.
+```javascript
+var LoginController = {
+    errors: [],
+    getUser() {
         
+    },
+    getPassword() {
+        
+    }
+}
+```
+    class 와 차이점이라면 콤마로 원소를 구분해야한다는 점 뿐이다.
+    하지만 이러한 단축 메서드 선언은 익명 함수 표현식이므로 재귀, 이벤트 바인딩등 자기참조가 어렵다는
+    단점이 있으므로 가능하면 사용하지 않는것을 권장한다.
+
+## 1.5 인트로스펙션
+    클래스 지향 프로그래밍 경험이 많으 개발자라면 인스턴스를 조사해 객체 유형을 거꾸로 유츄하는
+    타입 인트로스펙션에 익숙할 것이다.
+    다음은 instanceof 연산자로 객체 a1의 기능을 추론하는 코드다.
+```javascript
+function Foo() {
+    
+}
+Foo.prototype.something = function() {
+    console.log('something');  
+};
+var a1 = new Foo();
+if (a1 instanceof Foo) {
+    a1.something(); // something
+}
+```
+    Foo.prototype는 a1의 [[Prototype]] 연쇄에 존재하므로 instanceof 연산자는 마치 a1이 Foo 클래스
+    의 인스턴스인 것 같은 결과를 낸다. 그래서 a1 이 Foo 클래스의 기능을 가진 객체라고 생각할수 있다.
+    구문만 보면 instanceof가 a1과 Foo의 관계를 조사하는 듯 보이지만 실제로는 a1과 Foo.prototype 사이의
+    관계를 알려주는 일을 한다.
+    다음은 instanceof 연산자와 .prototype을 이용하여 타입 인트로스펙션을 통해 체크한것들이다.
+```javascript
+function Foo() {}
+function Bar() {}
+Bar.prototype = Object.create(Foo.prototype);
+var b1 = new Bar('b1');
+
+Bar.prototype instanceof Foo; // true
+Object.getPrototypeOf(Bar.prototype) === Foo.prototype; // true
+Foo.prototype.isPrototypeOf(Bar.prototype); // true
+b1 instanceof Foo; // true
+b1 instanceof Bar; // true
+Object.getPrototypeOf(b1) === Bar.prototype; // true
+Foo.prototype.isPrototypeOf(b1); // true
+Bar.prototype.isPrototypeOf(b1); // true
+```
+    가령 직관적으로 인스턴스가 상속을 포함한다고 생각하여 Bar instanceof Foo 같은 체크를 할려고
+    마음먹을 수 있다. 그러나 자바스크립트에서는 이런 비교는 없다. Bar.prototype instanceof Foo 라면
+    모를까
+    덕 타이핑 이라 하여 많은 개발자가 instanceof 보다 선호하는 또 다른 인트로스펙션이 있다.
+    이는 오리처럼 보이는 동물이 오리 소리를 낸다면 오리가 분명하다라는 속담에서 나온 용어인데
+    예를 들어 something() 함수를 가진 객체와 a1의 관계를 조사하는 대신 a1.something를 테스트해보고
+    통과하면 a1은 .something()을 호출할 자격이 있다고 가정하는것이다.
+```javascript
+if (a.something) {
+    a1.something();
+}
+```
+    가장 대표적인 덕 타이핑 으로 ES6 프로미스가 있다. 어떤 임의의 객체가 프로미스인지 판단해야할 경우
+    then() 함수를 가졌는지 조사하는식으로 테스트를 한다.
+    다음은 OLOO 스타일의 인트로스펙션 이다
+```javascript
+function Foo() {}
+var Bar = Object.create(Foo);
+var b1 = Object.create(Bar);
+
+Foo.isPrototypeOf(Bar); // true
+Object.getPrototypeOf(Bar) === Foo; // true
+Foo.isPrototypeOf(b1); // true
+Bar.isPrototypeOf(b1); // true
+Object.getPrototypeOf(b1) === Bar; // true
+```   
+    
