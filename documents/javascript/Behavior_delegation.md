@@ -130,7 +130,7 @@ b2.speak(); // Hello, I am b2.
     될 부모 클래스와 유형마다 다른 위젯을 나타내는 자식 클래스를 머리속에 떠올릴 것이다.
 ```javascript
 // 부모 클래스
-function Widget(width, geight) {
+function Widget(width, height) {
     this.width = width || 50;
     this.height = height || 50;
     this.$elem = null;
@@ -202,7 +202,7 @@ class Button extends Widget {
         this.$elem = $('<button>').text(this.label);
     }
     render($where) {
-        super($where);
+        super.render($where);
         this.$elem.click(this.onClick.bind(this));
     }
     onClick(evt) {
@@ -255,11 +255,13 @@ Button.onClick = function(evt) {
 
 $(document).ready(function() {
    var $body = $(document.body);
-   var btn1 = new Button(125, 30, 'Hello');
-   var btn2 = new Button(150, 40, 'World');
+   var btn1 = Object.create(Button);
+   btn1.setup(120, 35, 'Hello');
+   var btn2 = Object.create(Button);
+   btn2.setup(150, 40, 'World');
    
-   btn1.render($body);
-   btn2.render($body);
+   btn1.build($body);
+   btn2.build($body);
 });
 ```
     OLOO 관점에서는 Widget이 부모도 Button 이 자식도 아니다. Widget은 보통 객체로
