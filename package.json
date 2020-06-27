@@ -1,4 +1,5 @@
 {
+  "homepage": "https://starlight2083.github.io/TIL",
   "name": "blog",
   "version": "0.1.0",
   "private": true,
@@ -33,6 +34,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "homepage": "https://starlight2083.github.io/blog"
+  }
 }
