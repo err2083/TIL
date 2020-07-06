@@ -1,11 +1,15 @@
 import React from 'react';
 import './App.css';
-import Home from './components/Home';
-// import ReactMarkdown from 'react-markdown';
+import Header from "./components/Header";
+import Main from "./components/Main";
 
+{/*<a href="#" className="js-colorlib-nav-toggle colorlib-nav-toggle"><i></i></a>*/}
 function App() {
   return (
-      <Home/>
+      <div id="colorlib-page">
+        <Header/>
+        <Main/>
+      </div>
   );
 }
 
