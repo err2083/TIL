@@ -2,7 +2,8 @@ import React from 'react';
 import Header from "./components/Header";
 import Main from "./components/Main";
 
-{/*<a href="#" className="js-colorlib-nav-toggle colorlib-nav-toggle"><i></i></a>*/}
+/*<a href="#" className="js-colorlib-nav-toggle colorlib-nav-toggle"><i></i></a>*/
+// npm run deploy
 function App() {
   return (
       <div id="colorlib-page">

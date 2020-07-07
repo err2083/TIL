@@ -1,12 +1,12 @@
 import React from 'react';
-import { Route, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 //TODO MOVE CONSTANTS
 const NAV_ACTIVE = 'colorlib-active';
 
 const Header = () => {
     const nowYear = new Date().getFullYear();
-    function tt(e) {
+    function moveContent(e) {
         const exActive = document.getElementsByClassName('colorlib-active')[0];
         exActive.classList.remove(NAV_ACTIVE);
         e.target.parentNode.classList.add(NAV_ACTIVE);
@@ -16,10 +16,10 @@ const Header = () => {
             <nav id="colorlib-main-menu" role="navigation">
                 <ul>
                     <li className="colorlib-active">
-                        <Link to="/" onClick={tt}>Home</Link>
+                        <Link to="/TIL" onClick={moveContent}>Home</Link>
                     </li>
                     <li>
-                        <Link to="/content/list" onClick={tt}>List</Link>
+                        <Link to="/TIL/content/list" onClick={moveContent}>List</Link>
                     </li>
                 </ul>
             </nav>
