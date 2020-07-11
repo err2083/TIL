@@ -1,14 +1,13 @@
 import React from 'react';
 
 const SideBar = () => {
-    const test = '';
     return (
         <div className="col-xl-4 sidebar bg-light pt-5">
             <div className="sidebar-box pt-md-4">
                 <form action="#" className="search-form">
                     <div className="form-group">
                         <span className="icon icon-search"></span>
-                        <input type="text" className="form-control" placeholder="Type a keyword and hit enter" />
+                        <input type="text" className="form-control" placeholder="Type a keyword and hit enter"/>
                     </div>
                 </form>
             </div>
@@ -26,7 +25,7 @@ const SideBar = () => {
             <div className="sidebar-box">
                 <h3 className="sidebar-heading">Popular Articles</h3>
                 <div className="block-21 mb-4 d-flex">
-                    <a className="blog-img mr-4" style={{backgroundImage:`url${test}`}}></a>
+                    <a className="blog-img mr-4"></a>
                     <div className="text">
                         <h3 className="heading"><a href="#">Even the all-powerful Pointing has no control</a></h3>
                         <div className="meta">
@@ -37,7 +36,7 @@ const SideBar = () => {
                     </div>
                 </div>
                 <div className="block-21 mb-4 d-flex">
-                    <a className="blog-img mr-4" style={{backgroundImage:`url${test}`}}></a>
+                    <a className="blog-img mr-4"></a>
                     <div className="text">
                         <h3 className="heading"><a href="#">Even the all-powerful Pointing has no control</a></h3>
                         <div className="meta">
@@ -48,7 +47,7 @@ const SideBar = () => {
                     </div>
                 </div>
                 <div className="block-21 mb-4 d-flex">
-                    <a className="blog-img mr-4" style={{backgroundImage:`url${test}`}}></a>
+                    <a className="blog-img mr-4"></a>
                     <div className="text">
                         <h3 className="heading"><a href="#">Even the all-powerful Pointing has no control</a></h3>
                         <div className="meta">
@@ -74,14 +73,14 @@ const SideBar = () => {
                 </ul>
             </div>
 
-            <div className="sidebar-box subs-wrap img py-4" style={{backgroundImage:`url${test}`}}>
+            <div className="sidebar-box subs-wrap img py-4">
                 <div className="overlay"></div>
                 <h3 className="mb-4 sidebar-heading">Newsletter</h3>
                 <p className="mb-4">Far far away, behind the word mountains, far from the countries Vokalia</p>
                 <form action="#" className="subscribe-form">
                     <div className="form-group">
-                        <input type="text" className="form-control" placeholder="Email Address" />
-                            <input type="submit" value="Subscribe" className="mt-2 btn btn-white submit" />
+                        <input type="text" className="form-control" placeholder="Email Address"/>
+                            <input type="submit" value="Subscribe" className="mt-2 btn btn-white submit"/>
                     </div>
                 </form>
             </div>
@@ -97,7 +96,6 @@ const SideBar = () => {
                     <li><a href="#">May 2018 <span>(5)</span></a></li>
                 </ul>
             </div>
-
 
             <div className="sidebar-box">
                 <h3 className="sidebar-heading">Paragraph</h3>
