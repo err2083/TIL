@@ -27,10 +27,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3d918382-9b6d-4b28-a144-81e474baa488" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/documents/Spring/SpringCore.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/documents/SpringBoot/Annotation.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/documents/SpringBoot/WebApplicationContainer.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/documents/Spring/SpringCore.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/documents/Spring/SpringCore.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/documents/SpringBoot/Annotation.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/documents/SpringBoot/Annotation.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/documents/SpringBoot/WebApplicationContainer.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/documents/SpringBoot/WebApplicationContainer.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -205,6 +205,10 @@
       <workItem from="1596340220182" duration="12364000" />
       <workItem from="1596452707397" duration="2193000" />
       <workItem from="1596540906027" duration="2689000" />
+      <workItem from="1596551762128" duration="210000" />
+      <workItem from="1596712347765" duration="869000" />
+      <workItem from="1596947901018" duration="2969000" />
+      <workItem from="1597065980422" duration="1832000" />
     </task>
     <servers />
   </component>
@@ -254,6 +258,10 @@
     </state>
     <state x="629" y="341" key="#com.intellij.fileTypes.FileTypeChooser/0.23.1792.1020@0.23.1792.1020" timestamp="1596363806445" />
     <state x="629" y="342" key="#com.intellij.fileTypes.FileTypeChooser/0.23.1792.1022@0.23.1792.1022" timestamp="1595939143709" />
+    <state x="684" y="492" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1596948952154">
+      <screen x="0" y="23" width="1792" height="1097" />
+    </state>
+    <state x="684" y="492" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.23.1792.1097@0.23.1792.1097" timestamp="1596948952154" />
     <state x="263" y="155" width="1291" height="790" key="new project wizard" timestamp="1596454376021">
       <screen x="0" y="23" width="1792" height="1020" />
     </state>

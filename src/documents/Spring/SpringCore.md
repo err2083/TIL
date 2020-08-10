@@ -232,3 +232,130 @@ public class Main {
     URL로 외부 리소스를 액세스 하려면 스프링 UrlResource를 이용합니다.
     
 ## 1.7 프로퍼티 파일에서 로케일마다 다른 다국어 메시지를 해석하기
+    MessageSource 인터페이스에는 리소스 번들 메시지를 처리하는 메서드가 정의 되어있습니다.
+    ResourceBundleMessageSource는 가장 많이 쓰는 구현체로 로케일 별로 분리된 리소스 번들 메시지를
+    해석합니다.
+```java
+@Configuration
+public class ShopConfiguration {
+    @Bean
+    public ReloadableResourceBundleMessageSource messageSource() {
+        ReloadableResourceBundleMessageSource messageSource =
+            new ReloadableResourceBundleMessageSource();
+        messageSource.setBasenames("classpath:messages");
+        messageSource.setCacheSeconds(1);
+        return messageSource;
+    }
+}
+```
+    빈 인스턴스는 반드시 messageSource 라고 명명해서 애플리케이션 컨텍스트가 알아서 감지합니다.
+    setBasenames 는 번들 위치를 지정, setCacheSeconds 는 캐시 주기를 1초로 해서 쓸모없는 메시지를
+    다시 읽지 않게 합니다. 이렇게 MessageSource를 정의하고 영어가 주 언어인 미국 로케일애서 텍스트를 찾으면
+    messages_en_US.properties 리소스 번들 파일이 읽혀집니다.
+```java
+@Component
+public class Cashier {
+    @Autowired
+    private MessageSource messageSource;
+    public void checkout() {
+        String message = messageSource.getMessage("key", null, Locale.US);
+        System.out.println(message);
+    }
+}
+```
+## 1.8 애너테이션을 이용해 POJO 초기화/폐지 커스터마이징하기
+    어떤 POJO는 사용하기 전에 특정한 초기화 작업을 거쳐야 합니다. 예를 들어 파일을 열거나, 네트워크/DB 요청,
+    메모리 할당 등 선행 작업이 필요한 경우입니다. 이런 POJO 는 생명이 다하는 순간 폐기 작업을 진행해주어야
+    합니다. 자바 구성 클래스의 @Bean 정의부에서 initMethod, destroyMethod 속성을 설정하면
+    스프링은 이들을 각각 초기화, 폐기 콜백 메서드로 인지합니다. 또는 POJO 메서드에 각각
+    @PostConstruct 및 PreDestory 를 붙여도 됩니다. 또 스프링은 @Lazy 를 붙여 주어진 시점까지
+    빈 생성을 미룰수 있고, @DependsOn 으로 빈 생성전에 다른 빈 생성을 강제할수 있습니다.
+    다음은 파일 작업을 하는 클래스 입니다.
+```java
+public class FileLorder {
+    @Setter
+    private String fileName;
+    @Setter
+    private String path;
+    @Setter
+    private String extension;
+    private BufferedWriter writer;
+    
+    public void openFile() throws IOException {
+        File targetDir = new FIle(path);
+        if (!targetDir.exists()) {
+            targetDir.mkdir();
+        }
+        File checkoutFile = new FIle(path, fileName + extension);
+        if (!checkoutFile.exists()) {
+            checkoutFile.createNewFile();
+        }
+
+        writer = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream(checkoutFile, true)));
+    }
+
+    public void checkout() throws IOExcetion {
+        writer.write(/*content*/);
+        writer.flush();
+    } 
+    public void closeFile() throws IOException {
+        writer.close();
+    }   
+}
+```
+    FileLorder 클래스을 빈 생성 이전에 openFile() 메서드를 폐기 직전에 closeFile() 메서드를
+    실행하도록 자바 구성 클래스에 빈 정의부를 설정합시다.
+```java
+@Configuration
+public class ShopConfiguration {
+    @Bean(initMethod="openFile", destroyMethod="closeFile")
+    public FileLoader fileLoader() {
+        // ...
+    }
+}
+```
+    @Bean 의 initMethod, destroyMethod 속성에 각가 초기화, 폐기 작업을 할 메서드를 지정하면
+    인스턴스 생성전에 메서드를 먼저 트리거 할 수 있습니다.
+    
+    자바 구성 클래스 와부에 POJO 클래스를 정의할 경우 클래스에 @Component 를 붙이고
+    초기화할 메서드에 @PostConstruct, 폐기 메서드에 @PreDestory 을 지정하면 됩니다.
+    
+    스프링은 모든 POJO를 애플리케이션 시동과 동시에 POJO를 초기화합니다. 이 초기화를 뒤로 미루는 개념을
+    느긋한 초기화 라고 합니다. 주로 네트워크 접속, 파일 처리 등에 사용됩니다.
+    빈에 @Lazy 를 붘이면 적용이 됩니다.
+    
+    POJO가 늘어나면 그에 따른 POJO 초기화 횟수도 증가하게 됩니다. 이때 자바 구성 클애스에 분산 선언된
+    많은 POJO가 서로를 참조하게 되면 경합조건이 일어나기 쉽습니다. 이는 A라는 빈이 B에 의존하는 경우에
+    B가 생성전에 A가 생성되는 것입니다. 이때 @DependsOn 애너테이션을 붘여 POJO 순서를 강제할수 있습니다.
+    자바 구성 클래스의 빈에 @DependsOn("className") 를 붙이면 해당 빈은 className 보다
+    늦게 생성됩니다.
+
+## 1.9 후처리기를 만들어 POJO 검증/수정하기
+    빈 후처리기를 이용하면 초기화 콜백 메서드(@initMethod ,@PostConstruct) 전후 원하는 로직을
+    빈에 적용할수 있습니다. 빈 후처리기는 IoC 컨테이너 내부의 모든 빈 인스턴스를 대상으로 합니다.
+    @Required는 스프링에 내장된 후처리기 RequiredAnnotationBeanPostProcessor가 지원하는
+    애너테이션 입니다.
+    
+    빈 후처리기는 BeanPostProcessor 인터페이스를 구현한 객체입니다. 이 인터페이스를 구현한 객체를
+    발견하면 스프링은 모든 빈 인스턴스에 postProcessBeforeInitialization(),
+    postProcessAfterInitialization() 두 메서드를 적용합니다.
+```java
+@Component
+public class AuditCheckBeanPostProcessor implements BeanPostProcessor {
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) 
+        throws BeanException {
+        return bean;
+    }
+}
+```
+postProcessBeforeInitialization(), postProcessAfterInitialization() 메서드는
+반드신 빈 인스턴스를 반환해주어야 합니다. 애플리케이션 컨텍스트는 BeanPostProcessor 구현 빈을 감지해
+컨테이너 안에 있는 다른 빈 인스턴스에 일괄 적용합니다.
+
+특정 빈 프로퍼티가 설정되어있는지 체크하고 싶은 경우 커스텀 후처리기를 작성하고 해당 프로퍼티에
+@Required를 붙입니다. 이를 붙인 프로퍼티는 스프링이 감지해서 값의 존재 여부를 조사하고 
+프로퍼티값이 없으면 BeanInitializationException 예외를 던집니다.
+
+## 1.10 팩토리(정적 메서드, 인스턴스 메서드, 스프링 팩토리빈)로 POJO 생성하기

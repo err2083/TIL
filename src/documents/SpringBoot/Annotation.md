@@ -1,4 +1,4 @@
-***이 글은 스프링 부트로 배우는 자바 웹 개 을 참고해서 쓴 글입니다.***
+***이 글은 스프링 부트로 배우는 자바 웹 개발 을 참고해서 쓴 글입니다.***
 # 1. 어노테이션
 ## 1.0 개요
 어노테이션은 일종의 메타데이터로, 주석처럼 코드에 추가해서 컴파일 또는 런타임 시점에 해석된다.
@@ -167,7 +167,60 @@ public class App {
     }
 }
 ```
-230
+
+### 1.2.2 @Conditional
+@Conditional 어노테이션은 이름처럼 조건에 따라 자바 설정 클래스를 선택할 수 있게 해주는 어노테이션이다.
+Condition 인터페이스를 상속받은 클애스들과 같이 사용하는 어노테이션으로 matchs 메소드가 true 인 빈을 생성한다
+```java
+public interface MsgBean {
+    default void printMsg() {
+        System.out.println("My Bean default is running");
+    }
+}
+
+public class siteAConfigCondition implements Condition {
+    @Override
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+        return "sitea".equals(context.getEnvironment().getProperty("env", "sitea"));
+    }
+}
+
+public class siteBConfigCondition implements Condition {
+    @Override
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+        return "siteb".equals(context.getEnvironment().getProperty("env", "siteb"));
+    }
+}
+
+@Component
+@Conditional(siteAConfigCondition.class)
+public class SiteABean implements MsgBean {
+    @Override
+    public void printMsg() {
+        System.out.println("Site A is working");
+    }
+}
+
+@Component
+@Conditional(siteBConfigCondition.class)
+public class SiteBBean implements MsgBean {
+    @Override
+    public void printMsg() {
+        System.out.println("Site B is working");
+    }
+}
+```
+vm옵션을 전달할 때는 -D를 앞에 붙이고 사용하면 된다. env 는 Denv로 표현이 가능하다.
+
+### 1.2.3 @AutoConfigruationPackage
+@AutoConfigruationPackage 어노테이션은 패키지 경로를 스프링 콘텍스트가 스캔 가능하도록 하는 역활을 한다.
+@AutoConfigruationPackage 어노테이션은 AutoConfigruationPackage.Register 를 임포트하는데,
+이 클래스가 실제로 패키지 정보를 등록하는 역활을 한다.
+@EnableAutoConfiguration 어노테이션은 @AutoConfigurationPackage 어노테이션을 포함하고 있어서
+@AutoConfigurationPackage 선언한것과 동일한 효과를 볼 수 있다.
+
+### 1.2.4 @EnableConfigurationProperties 236 
+ 
 
     
 
